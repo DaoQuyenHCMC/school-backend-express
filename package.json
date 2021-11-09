@@ -1,0 +1,35 @@
+{
+  "name": "school-backend-express",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "startDev": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DaoQuyenHCMC/school-backend-express.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DaoQuyenHCMC/school-backend-express/issues"
+  },
+  "homepage": "https://github.com/DaoQuyenHCMC/school-backend-express#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "msnodesqlv8": "^2.4.1",
+    "mssql": "^7.2.1",
+    "sequelize": "^6.8.0",
+    "tedious": "^14.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.14"
+  }
+}
