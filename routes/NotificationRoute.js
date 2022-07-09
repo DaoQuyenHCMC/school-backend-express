@@ -2,7 +2,7 @@ const express = require("express");
 const Router = express.Router();
 const {createManager, updateManager, getAll, deleteManager, getAllManager, approveManager, 
         createStudent, getAllStudent, getAllRequestAdminFromStudent, getAllStudentRequest,
-        getAllFamily, createFamily, getAllFamilyRequest,
+        getAllFamily, createFamily, getAllFamilyRequest, createTeacherListHomeroom,
         createCustomer, getAllTeacher, createTeacher, getAllRequestAdminFromTeacher, getAllTeacherRequest, createTeacherCourse, createTeacherHomeroom,
         createAdmin, updateAdmin, getAllAdmin, deleteAdmin, getAllForAdmin, getAllRequestAdmin, approveAdmin} = require('../controllers/NotificationController')
 const {verifyToken} = require('../middleware/verifyToken');
@@ -37,9 +37,10 @@ Router.route("/student").post(verifyToken, checkRoleStudent, createStudent);
 
 Router.route("/teacher").get(verifyToken, checkRoleTeacher, getAllTeacher);
 Router.route("/teacher/:id").get(verifyToken, checkRoleTeacher, getAllTeacher);
-Router.route("/teacher-class").post(verifyToken, checkRoleTeacher, createTeacher);
+Router.route("/teacher-course-list").post(verifyToken, checkRoleTeacher, createTeacher);
 Router.route("/teacher-course").post(verifyToken, checkRoleTeacher, createTeacherCourse);
 Router.route("/teacher-homeroom").post(verifyToken, checkRoleTeacher, createTeacherHomeroom);
+Router.route("/teacher-homeroom-list").post(verifyToken, checkRoleTeacher, createTeacherListHomeroom);
 Router.route("/teacher-request").get(verifyToken, checkRoleTeacher, getAllTeacherRequest);
 
 Router.route("/family").get(verifyToken, checkRoleFamily, getAllFamily);

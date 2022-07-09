@@ -421,6 +421,52 @@ module.exports = function () {
     }
   };
 
+  this.createTeacherListHomeroom = async (newData, userId, result) => {
+    try {
+      dataStudent = await modelStudent.getAllTeacherHomeroom({
+        userId: userId,
+      });
+      if (dataStudent.recordset.length === 0) {
+        //Status, Data,	Message, Total, Headers
+        return result(Status.APIStatus.Ok, null, "Danh sách rỗng", 0, null);
+      }
+      for (let index = 0; index < dataStudent.recordset.length; index++) {
+        notification = {
+          title: newData.title,
+          description: newData.description,
+          extracurricularActivitiesId: newData.extracurricularActivitiesId,
+          startDay: newData.startDay || Date.now(),
+          endDay: newData.endDay || Date.now(),
+          createBy: userId,
+          approveBy: "ADMIN",
+          object: dataStudent.recordset[index].id,
+          status: 'APPROVE'
+        };
+
+        notification.schoolId = notification.schoolId = await (await modelSchool.getSchoolIdFromTeacher({ userId: userId })).recordset[0].schoolId;
+        // Thêm dữ liệu
+        await model.create(notification);
+        // Thêm dữ liệu
+        dataFamily = await modelStudent.getFamilyByStudent({ studentId: notification.object });
+        if (dataFamily.recordset.length != 0) {
+          notification.object = await dataFamily.recordset[0].CMND;
+          if (notification.object) await model.create(notification);
+        }
+      }
+      return result(
+        Status.APIStatus.Ok,
+        null,
+        "Tạo dữ liệu thành công",
+        0,
+        null
+      );
+    } catch (err) {
+      //Status, Data,	Message, Total, Headers
+      result(Status.APIStatus.Error, null, "Tạo dữ liệu thất bại", 0, null);
+    }
+  };
+
+
   this.createTeacher = async (newData, userId, result) => {
     try {
       dataStudent = await modelStudent.getAllTeacherHomeroom({

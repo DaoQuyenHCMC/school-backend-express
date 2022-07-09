@@ -884,7 +884,7 @@ module.exports = function () {
       // Lấy tất cả dữ liệu
       data = await model.getAllAdmin({
         studentId: studentId,
-        teacherId: teacherId,
+        teacherId: userId,
         schoolYear: schoolYear,
         studentName: studentName,
         contactBookId: id,

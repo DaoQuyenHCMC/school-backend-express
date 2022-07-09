@@ -144,6 +144,18 @@ exports.createTeacherHomeroom = (req, res) => {
   });
 };
 
+exports.createTeacherListHomeroom = (req, res) => {
+  model.createTeacherListHomeroom(req.body, req.user.id, function (status, data, message, total, headers) {
+    res.send({
+      status: status,
+      data: data,
+      message: message,
+      total: total,
+      headers: headers,
+    });
+  });
+};
+
 exports.updateAdmin = (req, res) => {
   model.updateAdmin(req.body, req.user.id, function (status, data, message, total, headers) {
     res.send({

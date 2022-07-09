@@ -93,7 +93,7 @@ module.exports = function () {
 
   this.getAllTeacherClass = async function ({userId, yearId, semester}) {
     const pool = await conn;
-    var sqlString = "SELECT  cour.id courceId, cour.name courceName, c.id classId, cb.class_name className, y.id yearId, y.name yearName, cb.semester FROM mark_student m"
+    var sqlString = "SELECT  cour.id courceId, cour.name courceName, c.id class_id, cb.class_name className, y.id yearId, y.name yearName, cb.semester FROM mark_student m"
     + " INNER JOIN dbo.contact_book cb ON m.contact_book_id = cb.id "
     + " INNER JOIN dbo.cources cour ON m.cource_id = cour.id "
     + " INNER JOIN dbo.school_year y ON y.id = cb.school_year "

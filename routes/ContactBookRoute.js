@@ -21,7 +21,7 @@ Router.route("/admin").delete(verifyToken, checkRoleAdmin, deleteAdmin);
 
 Router.route("/teacher").get(verifyToken, checkRoleTeacher, getAllTeacher);
 Router.route("/teacher/:id").get(verifyToken, checkRoleTeacher, getAllTeacher);
-// Router.route("/teacher").post(verifyToken, checkRoleTeacher, createTeacher);
+Router.route("/teacher").post(verifyToken, checkRoleTeacher, createTeacher);
 Router.route("/teacher").delete(verifyToken, checkRoleTeacher, deleteTeacher);
 
 module.exports = Router;
