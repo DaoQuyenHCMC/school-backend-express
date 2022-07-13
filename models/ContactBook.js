@@ -2,12 +2,13 @@
 const { conn, sql } = require("../config/db");
 
 module.exports = function () {
-  const baseUrlStart = "SELECT cb.id, cb.class_name className, cb.semester, cb.mark, s.id studentId, s.[name] studentName, t.id teacherId, t.[name] teacherName, y.id schoolYear, y.[name] yearName FROM dbo.contact_book cb " +
+  const baseUrlStart = "SELECT cb.id, cb.class_name className, cb.semester, cb.mark, s.id studentId, s.[name] studentName, t.id teacherId, t.[name] teacherName, y.id schoolYear, y.[name] yearName, f.cmnd cmndFamily, f.[name] nameFamily FROM dbo.contact_book cb " +
     "LEFT JOIN dbo.student s ON s.id = cb.student_id " +
     "LEFT JOIN dbo.teacher t ON cb.teacher_id = t.id " +
-    "LEFT JOIN dbo.school_year y ON y.id = cb.school_year ";
+    "LEFT JOIN dbo.school_year y ON y.id = cb.school_year " +
+    "LEFT JOIN dbo.family f ON f.cmnd = s.cmnd_family ";
 
-  const baseUrlEndAdmin = "ORDER BY s.school_id, cb.id, cb.class_name, cb.semester, s.[name], s.id "
+  const baseUrlEndAdmin = "ORDER BY s.school_id, y.name, cb.class_name, cb.semester, s.[name], s.id "
 
   const baseUrlPagination = "OFFSET (@offset-1)*@limit ROWS FETCH NEXT @limit ROWS ONLY ";
 
@@ -18,11 +19,13 @@ module.exports = function () {
     studentName,
     semester,
     offset,
-    limit
+    limit,
+    cmndFamily,
+    contactBookId
   }) {
     const pool = await conn;
     var sqlString = baseUrlStart;
-    if (studentId || teacherId || schoolYear || studentName || semester) {
+    if (studentId || teacherId || schoolYear || studentName || semester || cmndFamily || contactBookId) {
       sqlString += "WHERE ";
       if (studentId) sqlString += " cb.student_id = @studentId ";
       if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && teacherId) sqlString += "AND ";
@@ -33,6 +36,10 @@ module.exports = function () {
       if (studentName) sqlString += " s.[name] = N'" + studentName + "' ";
       if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && semester) sqlString += "AND ";
       if (semester) sqlString += " cb.semester = @semester ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && cmndFamily) sqlString += "AND ";
+      if (cmndFamily) sqlString += " f.cmnd = @cmndFamily ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && contactBookId) sqlString += "AND ";
+      if (contactBookId) sqlString += " cb.id = @contactBookId ";
     }
     sqlString += baseUrlEndAdmin;
     if (limit && offset) sqlString += baseUrlPagination;
@@ -40,7 +47,9 @@ module.exports = function () {
       .input("semester", sql.VarChar, semester)
       .input("teacherId", sql.VarChar, teacherId)
       .input("studentId", sql.VarChar, studentId)
+      .input("cmndFamily", sql.VarChar, cmndFamily)
       .input("schoolYear", sql.Int, schoolYear)
+      .input("contactBookId", sql.Int, contactBookId)
       .input("offset", sql.Int, offset)
       .input("limit", sql.Int, limit)
       .query(sqlString);

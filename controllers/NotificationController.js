@@ -182,6 +182,20 @@ exports.approveAdmin = (req, res) => {
   });
 };
 
+exports.approveTeacher = (req, res) => {
+  const approve = req.params.approve;
+  const id = req.query.id;
+  model.approveTeacher(id, approve, req.user.id, function (status, data, message, total, headers) {
+    res.send({
+      status: status,
+      data: data,
+      message: message,
+      total: total,
+      headers: headers,
+    });
+  });
+};
+
 exports.approveManager = (req, res) => {
   const approve = req.params.approve;
   const id = req.query.id;

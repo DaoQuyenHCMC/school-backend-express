@@ -32,7 +32,7 @@ module.exports = function () {
       if (courceId) sqlString += " cour.id = @courceId ";
     }
     sqlString += baseUrlEndAdmin;
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
       .input("contactBookId", sql.Int, contactBookId)
       .input("schoolYear", sql.Int, schoolYear)
@@ -53,7 +53,7 @@ module.exports = function () {
     if (schoolYear) sqlString += "AND y.id = @schoolYear ";
     if (markId) sqlString += "AND m.id = @markId ";
     sqlString += baseUrlEndAdmin;
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
       .input("contactBookId", sql.Int, contactBookId)
       .input("schoolYear", sql.Int, schoolYear)
@@ -65,7 +65,7 @@ module.exports = function () {
       .query(sqlString);
   }
 
-  this.getAllTeacher = async function ({ contactBookId, studentId, userId, markId, schoolYear, semester, offset, limit, classId }) {
+  this.getAllTeacher = async function ({ contactBookId, studentId, userId, markId, schoolYear, semester, offset, limit, classId, courceId, studentIdFind, studentNameFind }) {
     const pool = await conn;
     var sqlString = baseUrlStart
       + " WHERE cour.teacher_id = @userId ";
@@ -76,8 +76,11 @@ module.exports = function () {
     if (schoolYear) sqlString += "and cour.year_id = @yearId ";
     if (semester) sqlString += "and cour.semester = @semester ";
     if (classId) sqlString += "and c.id = @classId ";
+    if (courceId) sqlString += "and cour.id = @courceId ";
+    if (studentIdFind) sqlString += "and s.id like '%" + studentIdFind + "%' ";
+    if (studentNameFind) sqlString += "and s.[name] like N'%" + studentNameFind + "%' ";
     sqlString += " ORDER BY s.[name], t.id, s.id, sb.id, cb.id ";
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
       .input("contactBookId", sql.Int, contactBookId)
       .input("markId", sql.Int, markId)
@@ -88,21 +91,22 @@ module.exports = function () {
       .input("offset", sql.Int, offset)
       .input("limit", sql.Int, limit)
       .input("classId", sql.Int, classId)
+      .input("courceId", sql.Int, courceId)
       .query(sqlString);
   }
 
-  this.getAllTeacherClass = async function ({userId, yearId, semester}) {
+  this.getAllTeacherClass = async function ({ userId, yearId, semester }) {
     const pool = await conn;
-    var sqlString = "SELECT  cour.id courceId, cour.name courceName, c.id class_id, cb.class_name className, y.id yearId, y.name yearName, cb.semester FROM mark_student m"
-    + " INNER JOIN dbo.contact_book cb ON m.contact_book_id = cb.id "
-    + " INNER JOIN dbo.cources cour ON m.cource_id = cour.id "
-    + " INNER JOIN dbo.school_year y ON y.id = cb.school_year "
-    + " LEFT JOIN dbo.student s ON s.id = cb.student_id "
-    + " LEFT JOIN dbo.class c ON s.class_id = c.id "
-    + " WHERE cour.teacher_id = @userId ";
-    if(yearId) sqlString += "AND y.id = @yearId ";
-    if(semester) sqlString += "AND cb.semester = @semester ";
-    sqlString += " GROUP BY cour.id, cour.name, c.id , cb.class_name, y.id, y.name, cb.semester ";
+    var sqlString = "SELECT  cour.id courceId, cour.name courceName, c.id classId, cb.class_name className, y.id yearId, y.name yearName, cb.semester, c.total FROM mark_student m"
+      + " INNER JOIN dbo.contact_book cb ON m.contact_book_id = cb.id "
+      + " INNER JOIN dbo.cources cour ON m.cource_id = cour.id "
+      + " INNER JOIN dbo.school_year y ON y.id = cb.school_year "
+      + " LEFT JOIN dbo.student s ON s.id = cb.student_id "
+      + " LEFT JOIN dbo.class c ON s.class_id = c.id "
+      + " WHERE cour.teacher_id = @userId ";
+    if (yearId) sqlString += "AND y.id = @yearId ";
+    if (semester) sqlString += "AND cb.semester = @semester ";
+    sqlString += " GROUP BY cour.id, cour.name, c.id , cb.class_name, y.id, y.name, cb.semester, c.total ";
     return await pool.request()
       .input("userId", sql.VarChar, userId)
       .input("yearId", sql.Int, yearId)
@@ -111,7 +115,7 @@ module.exports = function () {
   }
 
 
-  this.getAllHomeRoomTeacher = async function ({ contactBookId, studentId, userId, markId, schoolYear, semester, offset, limit  }) {
+  this.getAllHomeRoomTeacher = async function ({ contactBookId, studentId, userId, markId, schoolYear, semester, offset, limit }) {
     const pool = await conn;
     var sqlString = baseUrlStart + " WHERE cb.teacher_id = @userId ";
     if (contactBookId) sqlString += "AND m.contact_book_id = @contactBookId ";
@@ -120,7 +124,7 @@ module.exports = function () {
     if (schoolYear) sqlString += "and cour.year_id = @yearId ";
     if (semester) sqlString += "and cb.semester = @semester ";
     sqlString += " ORDER BY s.[name], t.id, s.id, sb.id, cb.id ";
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
       .input("contactBookId", sql.Int, contactBookId)
       .input("markId", sql.Int, markId)
@@ -133,7 +137,7 @@ module.exports = function () {
       .query(sqlString);
   }
 
-  this.getAllStudent = async function ({ contactBookId, studentId, schoolYear, markId, semester, offset, limit  }) {
+  this.getAllStudent = async function ({ contactBookId, studentId, schoolYear, markId, semester, offset, limit }) {
     const pool = await conn;
     var sqlString = baseUrlStart + " WHERE cb.student_id = @studentId ";
     if (contactBookId) sqlString += "AND m.contact_book_id = @contactBookId ";
@@ -141,7 +145,7 @@ module.exports = function () {
     if (markId) sqlString += "AND m.id = @markId ";
     if (semester) sqlString += "and cb.semester = @semester ";
     sqlString += baseUrlEndAdmin;
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
       .input("contactBookId", sql.Int, contactBookId)
       .input("schoolYear", sql.Int, schoolYear)
@@ -163,7 +167,7 @@ module.exports = function () {
     if (markId) sqlString += "AND m.id = @markId ";
     sqlString += "group by y.id, y.[name] "
     sqlString += "ORDER BY y.id, y.name ";
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
       .input("contactBookId", sql.Int, contactBookId)
       .input("schoolYear", sql.Int, schoolYear)
@@ -182,7 +186,7 @@ module.exports = function () {
     if (schoolYear) sqlString += "AND y.id = @schoolYear ";
     if (markId) sqlString += "AND m.id = @markId ";
     sqlString += "ORDER BY y.id, y.name ";
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
       .input("contactBookId", sql.Int, contactBookId)
       .input("schoolYear", sql.Int, schoolYear)
@@ -203,7 +207,7 @@ module.exports = function () {
     if (markId) sqlString += "AND m.id = @markId ";
     if (studentId) sqlString += "AND s.id = @studentId ";
     sqlString += baseUrlEndAdmin;
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
       .input("contactBookId", sql.Int, contactBookId)
       .input("schoolYear", sql.Int, schoolYear)
@@ -225,7 +229,7 @@ module.exports = function () {
     if (schoolYear) sqlString += "AND y.id = @schoolYear ";
     if (markId) sqlString += "AND m.id = @markId ";
     sqlString += "ORDER BY y.id, y.name ";
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
       .input("contactBookId", sql.Int, contactBookId)
       .input("schoolYear", sql.Int, schoolYear)

@@ -1,10 +1,10 @@
 const express = require("express");
 const Router = express.Router();
 const {createManager, updateManager, getAllStudent, deleteManager, getAllManager,
-        createAdmin, updateAdmin, deleteAdmin, getAllAdmin, getAllTeacher,
+        createAdmin, updateAdmin, deleteAdmin, getAllAdmin, getAllTeacher, getAllFamily,
         createTeacher, updateTeacher, deleteTeacher} = require('../controllers/ContactBookController')
 const {verifyToken} = require('../middleware/verifyToken');
-const {checkRoleAdmin, checkRoleAll, checkRoleManager, checkRoleTeacher} = require('../middleware/checkRole');
+const {checkRoleAdmin, checkRoleAll, checkRoleManager, checkRoleTeacher, checkRoleFamily} = require('../middleware/checkRole');
 
 Router.route("/student").get(verifyToken, checkRoleAll, getAllStudent);
 
@@ -23,5 +23,8 @@ Router.route("/teacher").get(verifyToken, checkRoleTeacher, getAllTeacher);
 Router.route("/teacher/:id").get(verifyToken, checkRoleTeacher, getAllTeacher);
 Router.route("/teacher").post(verifyToken, checkRoleTeacher, createTeacher);
 Router.route("/teacher").delete(verifyToken, checkRoleTeacher, deleteTeacher);
+
+Router.route("/family").get(verifyToken, checkRoleFamily, getAllFamily);
+Router.route("/family/:id").get(verifyToken, checkRoleFamily, getAllFamily);
 
 module.exports = Router;

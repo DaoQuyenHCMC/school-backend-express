@@ -75,9 +75,10 @@ exports.getAllFamily = (req, res) => {
   const id = req.params.id;
   const contactBookId = req.query.contactBookId;
   const studentId = req.query.studentId;
+  const status = req.query.status;
   const offset = req.query.offset;
   const limit = req.query.limit;
-  model.getAllFamily(id, contactBookId, studentId, offset, limit, req.user.id, function (status, data, message, total, headers) {
+  model.getAllFamily(id, contactBookId, studentId, offset, limit, req.user.id, status, function (status, data, message, total, headers) {
     res.send({
       status: status,
       data: data,

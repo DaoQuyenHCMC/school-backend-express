@@ -44,7 +44,8 @@ module.exports = function () {
   const checkObject = async (object, userId, role) => {
     if (object) {
       // Kiểm tra khóa ngoại school có tồn tại
-      if (['1', '2', '3', '5', '6', '7'].includes(object)) {
+      if (object == 1 || object == 2 || object == 3 || 
+        object == 5 || object == 6 || object == 7) {
         //Status, Message, Total, Headers
         return true;
       }
@@ -94,13 +95,14 @@ module.exports = function () {
       schoolId: newData.schoolId,
       title: newData.title,
       description: newData.description,
-      extracurricularActivitiesId: newData.extracurricularActivitiesId,
+      extracurricularActivitiesId: newData.extracurricularActivitiesId || null,
       object: newData.object || '5',
       startDay: newData.startDay,
-      endDay: newData.endDay
+      endDay: newData.endDay,
+      status: 'APPROVE'
     };
     try {
-      if (notification.extracurricularActivitiesId != null) {
+      if (notification.extracurricularActivitiesId) {
         dataExtracurricularActivities =
           await modelExtracurricularActivities.getOne(
             notification.extracurricularActivitiesId
@@ -295,7 +297,7 @@ module.exports = function () {
       object: newData.object || '3'
     };
     try {
-      if (notification.extracurricularActivitiesId != null) {
+      if (notification.extracurricularActivitiesId) {
         dataExtracurricularActivities =
           await modelExtracurricularActivities.getAllAdmin({ extraId: newData.extracurricularActivitiesId, userId: userId });
         if (dataExtracurricularActivities.recordset.length == 0) {
@@ -323,7 +325,7 @@ module.exports = function () {
   this.createStudent = async (newData, userId, result) => {
     notification = {
       title: newData.title || null,
-      description: newData.description || null,
+      description: newData.description,
       extracurricularActivitiesId: newData.extracurricularActivitiesId || null,
       startDay: newData.startDay || Date.now(),
       endDay: newData.endDay || Date.now(),
@@ -469,8 +471,18 @@ module.exports = function () {
 
   this.createTeacher = async (newData, userId, result) => {
     try {
-      dataStudent = await modelStudent.getAllTeacherHomeroom({
+      if(!newData.classId){
+        return result(
+          Status.APIStatus.Invalid,
+          null,
+          "Vui lòng truyền thông tin lớp học",
+          0,
+          null
+        );
+      }
+      dataStudent = await modelStudent.getAllTeacherCourse({
         userId: userId,
+        classId: newData.classId
       });
       if (dataStudent.recordset.length === 0) {
         //Status, Data,	Message, Total, Headers
@@ -643,6 +655,30 @@ module.exports = function () {
     try {
       // kiểm trả dữ liệu có tồn tại
       dataCheck = await model.getAllAdmin({ notificationId: id, userId: userId, approveBy: "ADMIN" });
+      if (dataCheck.recordset.length === 0 || !approve || !id || !["APPROVE", "WAIT", "CANCEL"].includes(approve.toUpperCase())) {
+        //Status, Data,	Message, Total, Headers
+        return result(
+          Status.APIStatus.NotFound,
+          null,
+          "Không tìm thấy dữ liệu hoặc không có quyền",
+          0,
+          null
+        );
+      }
+      await model.approve(approve.toUpperCase(), id);
+
+      //Status, Data,	Message, Total, Headers
+      return result(Status.APIStatus.Ok, null, "Cập nhật thành công", 1, null);
+    } catch (err) {
+      //Status, Data,	Message, Total, Headers
+      result(Status.APIStatus.Error, null, "Sai kiểu dữ liệu", 0, null);
+    }
+  };
+
+  this.approveTeacher = async (id, approve, userId, result) => {
+    try {
+      // kiểm trả dữ liệu có tồn tại
+      dataCheck = await model.getAllAdmin({ notificationId: id, userId: userId, approveBy: "TEACHER" });
       if (dataCheck.recordset.length === 0 || !approve || !id || !["APPROVE", "WAIT", "CANCEL"].includes(approve.toUpperCase())) {
         //Status, Data,	Message, Total, Headers
         return result(

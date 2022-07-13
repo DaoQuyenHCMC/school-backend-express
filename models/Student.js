@@ -11,7 +11,8 @@ module.exports = function () {
     gradeId,
     familyCMND,
     offset,
-    limit
+    limit,
+    studentId
   }) {
     const pool = await conn;
     var sqlString =
@@ -23,7 +24,7 @@ module.exports = function () {
       "LEFT JOIN dbo.[role] r ON s.role_id = r.id " +
       "LEFT JOIN dbo.grade g ON g.id = c.grade_id ";
 
-    if (classId || teacherId || schoolId || gradeId || familyCMND) {
+    if (classId || teacherId || schoolId || gradeId || familyCMND || studentId) {
       sqlString += "WHERE ";
       if (classId) {
         sqlString += "s.class_id = '" + classId + "' ";
@@ -74,6 +75,18 @@ module.exports = function () {
 
       if (familyCMND) {
         sqlString += "f.cmnd = '" + familyCMND + "' ";
+      }
+
+      if (
+        sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
+        "WHERE" &&
+        studentId
+      ) {
+        sqlString += "AND ";
+      }
+
+      if (studentId) {
+        sqlString += "s.id = '" + studentId + "' ";
       }
     }
     sqlString += " ORDER BY sc.[name], g.[name], c.[name], s.id ";
@@ -373,9 +386,48 @@ module.exports = function () {
       .query(sqlString);
   };
 
+  this.getAllTeacherCourseFull = async function ({
+    studentId,
+    classId,
+    gradeId,
+    userId,
+    studentIdFind,
+    offset,
+    limit,
+    studentNameFind
+  }) {
+    const pool = await conn;
+    var sqlString =
+      "SELECT s.id, s.email, s.[name], s.phone, s.[address], s.[status], s.role_id roleId, r.[name] roleName, s.class_id classId, c.[name] className, s.cmnd_family cmndFamily, t.id teacherId, t.[name] teacherName, sc.[name] schoolName, t.school_id schoolId, g.id gradeId, g.[name] gradeName, f.cmnd CMNDFamily, f.name nameFamily FROM dbo.student s " +
+      "LEFT JOIN dbo.class c ON s.class_id = c.id " +
+      "LEFT  JOIN dbo.teacher t ON c.teacher_id = t.id " +
+      "LEFT JOIN dbo.school sc ON t.school_id = sc.id " +
+      "LEFT JOIN dbo.family f ON s.cmnd_family = f.cmnd " +
+      "LEFT JOIN dbo.[role] r ON s.role_id = r.id " +
+      "LEFT JOIN dbo.grade g ON g.id = c.grade_id " +
+      "inner join dbo.cources cour on cour.class_id = s.class_id " +
+      "WHERE s.school_id = dbo.GetIdSchoolFromIdTeacher(@userId) AND cour.teacher_id = @userId ";
+      if (classId) sqlString += "AND s.class_id = @classId ";
+      if (gradeId) sqlString += "AND c.grade_id = @gradeId ";
+      if (studentId) sqlString += "AND s.id = @studentId ";
+      if (studentIdFind) sqlString += "AND s.id like '%" + studentIdFind + "%' ";
+      if (studentNameFind) sqlString += "AND s.name like N'%" + studentNameFind + "%' ";
+    sqlString += " ORDER BY g.[name], c.[name], s.id ";
+    if (limit && offset) sqlString += baseUrlPagination;
+    return await pool.request()
+      .input("classId", sql.Int, classId)
+      .input("gradeId", sql.Int, gradeId)
+      .input("userId", sql.VarChar, userId)
+      .input("studentId", sql.VarChar, studentId)
+      .input("offset", sql.Int, offset)
+      .input("limit", sql.Int, limit)
+      .query(sqlString);
+  };
+
   this.getAllTeacherCourse = async function ({
     userId,
-    studentId
+    studentId,
+    classId
   }) {
     const pool = await conn;
     var sqlString =
@@ -383,15 +435,18 @@ module.exports = function () {
       "inner join dbo.cources cour on cour.class_id = s.class_id " +
       "where cour.teacher_id = @userId ";
     if(studentId) sqlString += "and s.id = @studentId "
+    if(classId) sqlString += " and s.class_id = @classId "
     return await pool.request()
       .input("userId", sql.VarChar, userId)
       .input("studentId", sql.VarChar, studentId)
+      .input("classId", sql.Int, classId)
       .query(sqlString);
   };
 
   this.getAllTeacherHomeroom = async function ({
     userId,
-    studentId
+    studentId,
+    classId
   }) {
     const pool = await conn;
     var sqlString =
@@ -399,10 +454,12 @@ module.exports = function () {
       "inner join dbo.class c on c.id= s.class_id " +
       "where c.teacher_id = @userId ";
     if (studentId) sqlString += "and s.id = @studentId "
+    if (classId) sqlString += "and c.id = @classId "
     sqlString += " group by s.id "
     return await pool.request()
       .input("userId", sql.VarChar, userId)
       .input("studentId", sql.VarChar, studentId)
+      .input("classId", sql.Int, classId)
       .query(sqlString);
   };
 

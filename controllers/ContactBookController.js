@@ -19,6 +19,24 @@ exports.getAllStudent = (req, res) => {
   });
 };
 
+exports.getAllFamily = (req, res) => {
+  const id = req.params.id;
+  const semester = req.query.semester;
+  const schoolYear = req.query.schoolYear;
+  const studentId = req.query.studentId;
+  const offset = req.query.offset;
+  const limit = req.query.limit;
+  model.getAllFamily(id, req.user.id, semester, schoolYear, offset, limit, studentId, function (status, data, message, total, headers) {
+    res.send({
+      status: status,
+      data: data,
+      message: message,
+      total: total,
+      headers: headers,
+    });
+  });
+};
+
 exports.deleteManager = (req, res) => {
   const id = req.query.id;
   model.deleteManager(id, function (status, data, message, total, headers) {

@@ -179,3 +179,15 @@ exports.getAllTeacher = (req, res) => {
     });
   });
 };
+
+exports.getAllTeacherNameCourse = (req, res) => {
+  model.getAllTeacherNameCourse(req.user.id, function (status, data, message, total, headers) {
+    res.send({
+      status: status,
+      data: data,
+      message: message,
+      total: total,
+      headers: headers,
+    });
+  });
+};

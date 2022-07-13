@@ -19,8 +19,14 @@ var modelSchool = new School();
 module.exports = function () {
   // Kiểm tra dữ liệu
   function validator(student) {
-    if (!student.id || !student.schoolId || !student.classId) {
-      return "Bạn chưa nhập đầy đủ thông tin: trường, lớp học, định danh";
+    if (!student.id ) {
+      return "Bạn chưa nhập mã định danh cho học sinh";
+    }
+    if (!student.schoolId ) {
+      return "Bạn chưa nhập thông tin trường";
+    }
+    if (!student.classId) {
+      return "Bạn chưa nhập thông tin lớp học";
     }
     return null;
   }
@@ -380,15 +386,15 @@ module.exports = function () {
   this.createAdmin = async (userId, newData, result) => {
     // Gán dữ liệu
     student = {
-      id: newData.id,
-      classId: newData.classId,
-      name: newData.name,
-      phone: newData.phone,
-      email: newData.email,
-      password: newData.id,
-      address: newData.address,
+      id: newData.id || null,
+      classId: newData.classId || null,
+      name: newData.name || null,
+      phone: newData.phone || null,
+      email: newData.email || null,
+      password: newData.id || null,
+      address: newData.address || null,
       status: newData.status || 1,
-      cmndFamily: newData.cmndFamily,
+      cmndFamily: newData.cmndFamily || null,
       createBy: userId,
       updateBy: userId,
     };
@@ -520,10 +526,19 @@ module.exports = function () {
         schoolId: newData.schoolId || dataCheck.schoolId,
         updateBy: userId,
       };
-
+      email = "";
       // Kiểm tra cho email trong bảng student
       if (newData.email !== dataCheck.email) {
         email = newData.email
+      }
+      if(!newData.email && email == ""){
+        return result(
+          Status.APIStatus.Invalid,
+          null,
+          "Vui lòng nhập địa chỉ email",
+          0,
+          null
+        );
       }
       // kiểm trả dữ liệu có tồn tại
       var checkEmail = await checkStudentEmail(email);
@@ -595,7 +610,7 @@ module.exports = function () {
       result(Status.APIStatus.Ok, student, "Cập nhật thành công", 1, null);
     } catch (err) {
       //Status, Data,	Message, Total, Headers
-      result(Status.APIStatus.Error, null, "Update failed", 0, null);
+      result(Status.APIStatus.Error, null, "Sai kiểu dữ liệu", 0, null);
     }
   };
 
@@ -795,7 +810,7 @@ module.exports = function () {
     }
   };
 
-  this.getAllTeacher = async (id, classId, gradeId, studentIdFind, userId, offset, limit, studentNameFind, result) => {
+  this.getAllTeacherHomeRoom = async (id, classId, gradeId, studentIdFind, userId, offset, limit, studentNameFind, result) => {
     try {
       // Lấy tất cả dữ liệu
       data = await model.getAllTeacher({
@@ -822,13 +837,41 @@ module.exports = function () {
     }
   };
 
-  this.getFamily = async (userId, offset, limit, result) => {
+  this.getAllTeacherCourse = async (id, classId, gradeId, studentIdFind, userId, offset, limit, studentNameFind, result) => {
+    try {
+      // Lấy tất cả dữ liệu
+      data = await model.getAllTeacherCourseFull({
+        studentId: id,
+        userId: userId,
+        classId: classId,
+        gradeId: gradeId,
+        studentIdFind: studentIdFind,
+        offset: offset,
+        limit: limit,
+        studentNameFind: studentNameFind
+      });
+      //Status, Data,	Message, Total, Headers
+      result(
+        Status.APIStatus.Ok,
+        data.recordset,
+        "Lấy dữ liệu thành công",
+        data.recordset.length,
+        null
+      );
+    } catch (err) {
+      //Status, Data,	Message, Total, Headers
+      result(Status.APIStatus.Error, err, "Lấy dữ liệu thất bại", 0, null);
+    }
+  };
+
+  this.getFamily = async (userId, offset, limit, studentId, result) => {
     try {
       // Lấy tất cả dữ liệu
       data = await model.getAll({
         familyCMND: userId,
         offset: offset,
-        limit: limit
+        limit: limit,
+        studentId: studentId
       });
       //Status, Data,	Message, Total, Headers
       result(

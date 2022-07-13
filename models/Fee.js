@@ -10,7 +10,8 @@ module.exports = function () {
     offset,
     limit,
     feeId,
-    cmndFamily
+    cmndFamily,
+    status
   }) {
     const pool = await conn;
     var sqlString = "SELECT f.id, f.contact_book_id contactBookId, f.tuition_fee tuitionFee, f.status, f.date_fee dateFee, ct.student_id studentId, ct.teacher_id teacherId, ct.school_year schoolYear, ct.semester, ct.class_name className, y.name year FROM dbo.fee f "
@@ -18,7 +19,7 @@ module.exports = function () {
       + " LEFT JOIN dbo.student s ON s.id = ct.student_id "
       + " LEFT JOIN dbo.family fa ON fa.cmnd = s.cmnd_family "
       + " LEFT JOIN dbo.school_year y ON ct.school_year = y.id ";
-    if (contactBookId || studentId || feeId || cmndFamily) {
+    if (contactBookId || studentId || feeId || cmndFamily || status) {
       sqlString += "WHERE ";
       if (contactBookId) sqlString += " f.contact_book_id = @contactBookId ";
       if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && studentId) sqlString += "AND ";
@@ -27,6 +28,8 @@ module.exports = function () {
       if (feeId) sqlString += " f.id = @feeId ";
       if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && cmndFamily) sqlString += "AND ";
       if (cmndFamily) sqlString += " fa.cmnd = @cmndFamily ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && status) sqlString += "AND ";
+      if (status) sqlString += " f.status = @status ";
     }
     sqlString += " ORDER BY y.name, ct.class_name, f.date_fee ";
     if (limit && offset) sqlString += baseUrlPagination;
@@ -37,6 +40,7 @@ module.exports = function () {
       .input("contactBookId", sql.Int, contactBookId)
       .input("studentId", sql.VarChar, studentId)
       .input("cmndFamily", sql.VarChar, cmndFamily)
+      .input("status", sql.Bit, Number(status))
       .query(sqlString);
   }
 

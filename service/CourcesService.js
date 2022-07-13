@@ -615,4 +615,35 @@ module.exports = function () {
         }
     };
 
+    this.getAllTeacherNameCourse = async (userId, result) => {
+        try {
+            // Lấy tất cả dữ liệu
+            data = await model.getAllTeacherNameCourse({
+                teacherId: userId
+            });
+            if (data.recordset.length === 0) {
+                //Status, Data,	Message, Total, Headers
+                return result(
+                    Status.APIStatus.NotFound,
+                    null,
+                    "Không tìm thấy dữ liệu",
+                    0,
+                    null
+                );
+            }
+            //Status, Data,	Message, Total, Headers
+            result(
+                Status.APIStatus.Ok,
+                data.recordset,
+                "Lấy dữ liệu thành công",
+                data.recordset.length,
+                null
+            );
+
+        } catch (err) {
+            //Status, Data,	Message, Total, Headers
+            result(Status.APIStatus.Error, null, "Sai kiểu dữ liệu", 0, null);
+        }
+    };
+
 };

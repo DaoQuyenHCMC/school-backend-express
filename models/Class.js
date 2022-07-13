@@ -4,9 +4,9 @@ const { conn, sql } = require("../config/db");
 module.exports = function () {
 
   const baseUrlStart = "SELECT c.id, c.[name], c.total, c.teacher_id teacherId, t.[name] teacherName, c.grade_id gradeId, g.[name] gradeName, s.[name] schoolName, t.school_id schoolId FROM dbo.class c " +
-  " LEFT JOIN dbo.grade g ON g.id = c.grade_id " +
-  " LEFT JOIN dbo.teacher t ON t.id = c.teacher_id " +
-  " LEFT JOIN dbo.school s ON t.school_id = s.id ";
+    " LEFT JOIN dbo.grade g ON g.id = c.grade_id " +
+    " LEFT JOIN dbo.teacher t ON t.id = c.teacher_id " +
+    " LEFT JOIN dbo.school s ON t.school_id = s.id ";
 
   const baseUrlPagination = "OFFSET (@offset-1)*@limit ROWS FETCH NEXT @limit ROWS ONLY ";
 
@@ -16,11 +16,12 @@ module.exports = function () {
     schoolId,
     classId,
     offset,
-    limit
+    limit,
+    className
   }) {
     const pool = await conn;
     var sqlString = baseUrlStart;
-    if (gradeId || teacherId || schoolId || classId) {
+    if (gradeId || teacherId || schoolId || classId || className) {
       sqlString += "WHERE ";
 
       if (gradeId) {
@@ -29,7 +30,7 @@ module.exports = function () {
 
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
-          "WHERE" &&
+        "WHERE" &&
         teacherId
       ) {
         sqlString += "AND ";
@@ -41,7 +42,7 @@ module.exports = function () {
 
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
-          "WHERE" &&
+        "WHERE" &&
         schoolId
       ) {
         sqlString += "AND ";
@@ -53,7 +54,7 @@ module.exports = function () {
 
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
-          "WHERE" &&
+        "WHERE" &&
         classId
       ) {
         sqlString += "AND ";
@@ -62,18 +63,30 @@ module.exports = function () {
       if (classId) {
         sqlString += " c.id = @classId ";
       }
+
+      if (
+        sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
+        "WHERE" &&
+        className
+      ) {
+        sqlString += "AND ";
+      }
+
+      if (className) {
+        sqlString += " c.name like '%" + className + "%' ";
+      }
     }
 
     sqlString += " ORDER BY s.[name], g.[name], c.[name] ";
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
-    .input("gradeId", sql.Int, gradeId)
-    .input("classId", sql.Int, classId)
-    .input("schoolId", sql.VarChar, schoolId)
-    .input("teacherId", sql.VarChar, teacherId)
-    .input("offset", sql.Int, offset)
-    .input("limit", sql.Int, limit)
-    .query(sqlString);
+      .input("gradeId", sql.Int, gradeId)
+      .input("classId", sql.Int, classId)
+      .input("schoolId", sql.VarChar, schoolId)
+      .input("teacherId", sql.VarChar, teacherId)
+      .input("offset", sql.Int, offset)
+      .input("limit", sql.Int, limit)
+      .query(sqlString);
   };
 
   this.getAll = async function ({
@@ -98,7 +111,7 @@ module.exports = function () {
 
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
-          "WHERE" &&
+        "WHERE" &&
         teacherId
       ) {
         sqlString += "AND ";
@@ -110,7 +123,7 @@ module.exports = function () {
 
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
-          "WHERE" &&
+        "WHERE" &&
         schoolId
       ) {
         sqlString += "AND ";
@@ -122,11 +135,11 @@ module.exports = function () {
     }
 
     sqlString += " ORDER BY s.[name], g.[name], c.[name] ";
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
-    .input("offset", sql.Int, offset)
-    .input("limit", sql.Int, limit)
-    .query(sqlString);
+      .input("offset", sql.Int, offset)
+      .input("limit", sql.Int, limit)
+      .query(sqlString);
   };
 
   this.checkExist = async function (gradeId, name) {
@@ -235,7 +248,7 @@ module.exports = function () {
 
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
-          "WHERE" &&
+        "WHERE" &&
         gradeId
       ) {
         sqlString += "AND ";
@@ -247,7 +260,7 @@ module.exports = function () {
 
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
-          "WHERE" &&
+        "WHERE" &&
         teacherId
       ) {
         sqlString += "AND ";
@@ -259,7 +272,7 @@ module.exports = function () {
 
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
-          "WHERE" &&
+        "WHERE" &&
         schoolId
       ) {
         sqlString += "AND ";
@@ -271,11 +284,11 @@ module.exports = function () {
       }
     }
     return await pool.request()
-    .input("gradeId", sql.Int, gradeId)
-    .input("classId", sql.Int, classId)
-    .input("schoolId", sql.VarChar, schoolId)
-    .input("teacherId", sql.VarChar, teacherId)
-    .query(sqlString);
+      .input("gradeId", sql.Int, gradeId)
+      .input("classId", sql.Int, classId)
+      .input("schoolId", sql.VarChar, schoolId)
+      .input("teacherId", sql.VarChar, teacherId)
+      .query(sqlString);
   };
 
   this.getAllAdmin = async function ({
@@ -284,7 +297,8 @@ module.exports = function () {
     classId,
     userId,
     limit,
-    offset
+    offset,
+    className
   }) {
     const pool = await conn;
     var sqlString =
@@ -292,31 +306,21 @@ module.exports = function () {
       " LEFT JOIN dbo.grade g ON g.id = c.grade_id " +
       " LEFT JOIN dbo.teacher t ON t.id = c.teacher_id " +
       " LEFT JOIN dbo.school s ON t.school_id = s.id " +
-      " WHERE t.school_id = dbo.GetIdSchoolFromIdTeacher(@userId) ";
-    if (gradeId || teacherId || classId) {
-      if (gradeId) {
-        sqlString += "AND c.grade_id = @gradeId ";
-      }
-
-      if (teacherId) {
-        sqlString += "AND c.teacher_id = @teacherId ";
-      }
-
-      if (classId) {
-        sqlString += "AND c.id = @classId ";
-      }
-    }
-
+      " WHERE g.school_id = dbo.GetIdSchoolFromIdTeacher(@userId) ";
+    if (gradeId) sqlString += "AND c.grade_id = @gradeId ";
+    if (teacherId) sqlString += "AND c.teacher_id = @teacherId ";
+    if (classId) sqlString += "AND c.id = @classId ";
+    if (className) sqlString += "AND c.name like '%" + className + "%' ";
     sqlString += " ORDER BY g.[name], c.[name] ";
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
-    .input("gradeId", sql.Int, gradeId)
-    .input("classId", sql.Int, classId)
-    .input("teacherId", sql.VarChar, teacherId)
-    .input("userId", sql.VarChar, userId)
-    .input("offset", sql.Int, offset)
-    .input("limit", sql.Int, limit)
-    .query(sqlString);
+      .input("gradeId", sql.Int, gradeId)
+      .input("classId", sql.Int, classId)
+      .input("teacherId", sql.VarChar, teacherId)
+      .input("userId", sql.VarChar, userId)
+      .input("offset", sql.Int, offset)
+      .input("limit", sql.Int, limit)
+      .query(sqlString);
   };
 
   this.getAllTeacher = async function ({
@@ -332,7 +336,7 @@ module.exports = function () {
       " LEFT JOIN dbo.grade g ON g.id = c.grade_id " +
       " LEFT JOIN dbo.teacher t ON t.id = c.teacher_id " +
       " LEFT JOIN dbo.school s ON t.school_id = s.id " +
-      " WHERE t.school_id = dbo.GetIdSchoolFromIdTeacher(@userId) AND c.teacher_id = @userId ";
+      " WHERE g.school_id = dbo.GetIdSchoolFromIdTeacher(@userId) AND c.teacher_id = @userId ";
     if (gradeId || classId) {
       if (gradeId) {
         sqlString += "AND c.grade_id = @gradeId ";
@@ -344,17 +348,17 @@ module.exports = function () {
     }
 
     sqlString += " ORDER BY g.[name], c.[name] ";
-    if(limit && offset) sqlString += baseUrlPagination;
+    if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
-    .input("gradeId", sql.Int, gradeId)
-    .input("classId", sql.Int, classId)
-    .input("userId", sql.VarChar, userId)
-    .input("offset", sql.Int, offset)
-    .input("limit", sql.Int, limit)
-    .query(sqlString);
+      .input("gradeId", sql.Int, gradeId)
+      .input("classId", sql.Int, classId)
+      .input("userId", sql.VarChar, userId)
+      .input("offset", sql.Int, offset)
+      .input("limit", sql.Int, limit)
+      .query(sqlString);
   };
 
-  this.getIdSchoolFromIdClass = async function ({classId}) {
+  this.getIdSchoolFromIdClass = async function ({ classId }) {
     const pool = await conn;
     var sqlString =
       "SELECT dbo.GetIdSchoolFromIdClass(@classId) schoolId";
@@ -363,17 +367,17 @@ module.exports = function () {
       .query(sqlString);
   };
 
-  this.checkClassOfSchoolTeacher = async function ({classId, schoolId, teacherId}) {
+  this.checkClassOfSchoolTeacher = async function ({ classId, schoolId, teacherId }) {
     const pool = await conn;
     var sqlString = "SELECT 1 FROM dbo.class c " +
-    " LEFT JOIN dbo.grade g ON g.id = c.grade_id " +
-    " LEFT JOIN dbo.teacher t ON t.id = c.teacher_id " +
-    " WHERE (g.school_id = @schoolId or t.school_id = @schoolId) "
-    if(teacherId && classId){
+      " LEFT JOIN dbo.grade g ON g.id = c.grade_id " +
+      " LEFT JOIN dbo.teacher t ON t.id = c.teacher_id " +
+      " WHERE (g.school_id = @schoolId or t.school_id = @schoolId) "
+    if (teacherId && classId) {
       sqlString += "and (t.id = @teacherId or c.id = @classId) ";
-    }else if(teacherId){
+    } else if (teacherId) {
       sqlString += "and t.id = @teacherId ";
-    }else if(classId){
+    } else if (classId) {
       sqlString += "and c.id = @classId ";
     }
     return await pool.request()

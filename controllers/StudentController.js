@@ -182,7 +182,7 @@ exports.changePasswordStudent = (req, res) => {
   );
 };
 
-exports.getAllTeacher = (req, res) => {
+exports.getAllTeacherHomeRoom = (req, res) => {
   const id = req.params.id;
   const classId = req.query.classId;
   const gradeId = req.query.gradeId;
@@ -190,7 +190,26 @@ exports.getAllTeacher = (req, res) => {
   const studentNameFind = req.query.studentNameFind;
   const offset = req.query.offset;
   const limit = req.query.limit;
-  model.getAllTeacher(id, classId,gradeId, studentIdFind, req.user.id, offset, limit, studentNameFind, function (status, data, message, total, headers) {
+  model.getAllTeacherHomeRoom(id, classId,gradeId, studentIdFind, req.user.id, offset, limit, studentNameFind, function (status, data, message, total, headers) {
+    res.send({
+      status: status,
+      data: data,
+      message: message,
+      total: total,
+      headers: headers,
+    });
+  });
+};
+
+exports.getAllTeacherCourse = (req, res) => {
+  const id = req.params.id;
+  const classId = req.query.classId;
+  const gradeId = req.query.gradeId;
+  const studentIdFind = req.query.studentIdFind;
+  const studentNameFind = req.query.studentNameFind;
+  const offset = req.query.offset;
+  const limit = req.query.limit;
+  model.getAllTeacherCourse(id, classId,gradeId, studentIdFind, req.user.id, offset, limit, studentNameFind, function (status, data, message, total, headers) {
     res.send({
       status: status,
       data: data,
@@ -214,9 +233,10 @@ exports.getStudent = (req, res) => {
 };
 
 exports.getFamily = (req, res) => {
+  const studentId = req.params.id;
   const offset = req.query.offset;
   const limit = req.query.limit;
-  model.getFamily(req.user.id, offset, limit, function (status, data, message, total, headers) {
+  model.getFamily(req.user.id, offset, limit, studentId, function (status, data, message, total, headers) {
     res.send({
       status: status,
       data: data,

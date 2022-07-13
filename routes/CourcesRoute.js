@@ -1,7 +1,7 @@
 const express = require("express");
 const Router = express.Router();
 const {createManager, updateManager, getAllManager, deleteManager, getCourceNameManager, getCourceNameAdmin,
-        createAdmin, updateAdmin, getAllAdmin, deleteAdmin, getAllTeacher} = require('../controllers/CourcesController');
+        createAdmin, updateAdmin, getAllAdmin, deleteAdmin, getAllTeacher, getAllTeacherNameCourse} = require('../controllers/CourcesController');
 const {verifyToken} = require('../middleware/verifyToken');
 const {checkRoleAdmin, checkRoleManager, checkRoleTeacher} = require('../middleware/checkRole');
 
@@ -21,6 +21,7 @@ Router.route("/admin").put(verifyToken, checkRoleAdmin, updateAdmin);
 Router.route("/admin").delete(verifyToken, checkRoleAdmin, deleteAdmin);
 
 Router.route("/teacher").get(verifyToken, checkRoleTeacher, getAllTeacher);
+Router.route("/teacher-name-course").get(verifyToken, checkRoleTeacher, getAllTeacherNameCourse);
 Router.route("/teacher/:id").get(verifyToken, checkRoleTeacher, getAllTeacher);
 
 module.exports = Router

@@ -4,11 +4,12 @@ const { conn, sql } = require("../config/db");
 module.exports = function () {
 
   const baseUrlStart = "SELECT c.id classId, c.[name] className, t.id teacherId, t.[name] teacherName, sc.[name] schoolName, t.school_id schoolId, g.id gradeId, g.[name] gradeName, " +
-    "cour.id idCources, cour.[name] nameCources FROM dbo.cources cour " +
+    "cour.id idCources, cour.[name] nameCources, year.id schoolYear, cour.semester, sb.id subjectId FROM dbo.cources cour  " +
     "LEFT JOIN dbo.class c ON cour.class_id = c.id " +
     "LEFT JOIN dbo.teacher t ON cour.teacher_id = t.id " +
     "LEFT JOIN dbo.school sc ON cour.school_id = sc.id " +
     "LEFT JOIN dbo.grade g ON g.id = c.grade_id " +
+    "LEFT JOIN dbo.subject sb ON sb.id = cour.subject_id " +
     "LEFT JOIN dbo.school_year year ON year.id = cour.year_id ";
 
   const baseUrlEndAdmin = "ORDER BY cour.school_id ASC, cour.id ASC, cour.name ASC "
@@ -381,6 +382,19 @@ module.exports = function () {
       .input("limit", sql.Int, limit)
       .query(sqlString);
   };
+
+  this.getAllTeacherNameCourse = async function ({
+    teacherId }) {
+    const pool = await conn;
+    var sqlString = "SELECT c.name className, c.id classId FROM dbo.cources cour  " +
+    "LEFT JOIN dbo.class c ON cour.class_id = c.id " +
+    "WHERE cour.teacher_id = @teacherId " +
+    "GROUP BY c.name, c.id "
+    return await pool.request()
+      .input("teacherId", sql.VarChar, teacherId)
+      .query(sqlString);
+  };
+
 
   this.create = async function (newData) {
     const pool = await conn;

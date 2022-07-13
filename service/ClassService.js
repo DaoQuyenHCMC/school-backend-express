@@ -217,7 +217,7 @@ module.exports = function () {
     }
   };
 
-  this.getAllManager = async (id, gradeId, teacherId, schoolId, offset, limit, result) => {
+  this.getAllManager = async (id, gradeId, teacherId, schoolId, offset, limit, className, result) => {
     try {
       // Kiểm tra kiểu dữ liệu và required của khóa chính
       if (id && !(id % 1 === 0)) {
@@ -238,7 +238,8 @@ module.exports = function () {
         schoolId: schoolId,
         classId: id,
         offset: offset,
-        limit: limit
+        limit: limit,
+        className: className
       });
       if (data.recordset.length === 0) {
         //Status, Data,	Message, Total, Headers
@@ -446,7 +447,7 @@ module.exports = function () {
     }
   };
 
-  this.getAllAdmin = async (id, gradeId, teacherId, userId, offset, limit, result) => {
+  this.getAllAdmin = async (id, gradeId, teacherId, userId, offset, limit, className, result) => {
     try {
       // Kiểm tra kiểu dữ liệu và required của khóa chính
       if (id && !(id % 1 === 0)) {
@@ -467,7 +468,8 @@ module.exports = function () {
         classId: id,
         userId: userId,
         offset: offset,
-        limit: limit
+        limit: limit,
+        className: className
       });
       if (data.recordset.length === 0) {
         //Status, Data,	Message, Total, Headers

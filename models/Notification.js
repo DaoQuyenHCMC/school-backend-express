@@ -5,7 +5,7 @@ module.exports = function () {
 
   const baseUrlStart = "SELECT n.school_id schoolId, s.address schoolAddress, s.description schoolDescription, s.name schoolName, type, "
     + "n.id idNotification, n.object, n.create_by createBy, n.approve_by approveBy, n.status statusNotification, "
-    + "n.title titleNotification, n.description descriptionNotification, n.start_day startDay, n.end_day endDay, "
+    + "n.title titleNotification, n.description descriptionNotification, n.start_day startDay, n.end_day endDay, n.create_day createDay,"
     + "e.title titleExtracurricularActivities, e.id idExtracurricularActivities, e.description descriptionExtracurricularActivities, e.day "
     + "FROM notification n "
     + "LEFT JOIN dbo.extracurricular_activities e ON e.id = n.extracurricular_activities_id "
@@ -73,7 +73,15 @@ module.exports = function () {
 
   this.getAllStudent = async function ({ extracurricularActivitiesId, schoolId, userId, notificationId, status, offset, limit }) {
     const pool = await conn;
-    var sqlString = baseUrlStart + " WHERE (n.school_id = dbo.GetIdSchoolFromIdStudent(@userId) or n.school_id is null) and object in ('1','6', , @userId) and n.status = 'APPROVE' ";
+    var sqlString = "SELECT n.school_id schoolId, s.address schoolAddress, s.description schoolDescription, s.name schoolName, type, "
+    + "n.id idNotification, n.object, n.create_by createBy, n.approve_by approveBy, n.status statusNotification, t.name teacherName, "
+    + "n.title titleNotification, n.description descriptionNotification, n.start_day startDay, n.end_day endDay, n.create_day createDay,"
+    + "e.title titleExtracurricularActivities, e.id idExtracurricularActivities, e.description descriptionExtracurricularActivities, e.day "
+    + "FROM notification n "
+    + "LEFT JOIN dbo.extracurricular_activities e ON e.id = n.extracurricular_activities_id "
+    + "LEFT JOIN dbo.school s ON n.school_id = s.id "
+    + "LEFT JOIN dbo.teacher t ON t.id = n.create_by "
+    + " WHERE (n.school_id = dbo.GetIdSchoolFromIdStudent(@userId) or n.school_id is null) and object in ('1','6', @userId) and n.status = 'APPROVE' and n.create_by != @userId ";
     if (status) sqlString += "and n.status = @status ";
     if (extracurricularActivitiesId) sqlString += "AND n.extracurricular_activities_id = @extracurricularActivitiesId ";
     if (notificationId) sqlString += "AND n.id = @notificationId ";
@@ -92,7 +100,7 @@ module.exports = function () {
 
   this.getAllFamily = async function ({ extracurricularActivitiesId, userId, notificationId, status, offset, limit }) {
     const pool = await conn;
-    var sqlString = baseUrlStart + " WHERE object in ('5', @userId) and n.status = 'APPROVE' ";
+    var sqlString = baseUrlStart + " WHERE object in ('5', @userId) and n.status = 'APPROVE' and n.create_by != @userId ";
     if (status) sqlString += "and n.status = @status ";
     if (extracurricularActivitiesId) sqlString += "AND n.extracurricular_activities_id = @extracurricularActivitiesId ";
     if (notificationId) sqlString += "AND n.id = @notificationId ";
@@ -146,7 +154,7 @@ module.exports = function () {
 
   this.getAllTeacher = async function ({ extracurricularActivitiesId, userId, notificationId, status, offset, limit }) {
     const pool = await conn;
-    var sqlString = baseUrlStart + " WHERE (n.school_id = dbo.GetIdSchoolFromIdTeacher(@userId) or n.school_id is null) and object in ('2', '6', '7', @userId) and n.status = 'APPROVE' ";
+    var sqlString = baseUrlStart + " WHERE (n.school_id = dbo.GetIdSchoolFromIdTeacher(@userId) or n.school_id is null) and object in ('2', '6', '7', @userId) and n.status = 'APPROVE' and n.create_by != @userId ";
     if (status) sqlString += "and n.status = @status ";
     if (extracurricularActivitiesId) sqlString += "AND n.extracurricular_activities_id = @extracurricularActivitiesId ";
     if (notificationId) sqlString += "AND n.id = @notificationId ";
@@ -280,7 +288,7 @@ module.exports = function () {
       .input("approveBy", sql.VarChar, newData.approveBy)
       .input("status", sql.VarChar, newData.status || 'default')
       .input("startDay", sql.Date, newData.startDay)
-      .input("createDay", sql.Date, Date.now())
+      .input("createDay", sql.DateTime, Date.now())
       .input("endDay", sql.Date, newData.endDay)
       .query(sqlString);
   };

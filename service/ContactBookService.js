@@ -110,6 +110,48 @@ module.exports = function () {
     }
   };
 
+  this.getAllFamily = async (id, userId, semester, schoolYear, offset, limit, studentId, result) => {
+    try {
+        // Lấy tất cả dữ liệu
+        data = await model.getAll({
+          studentId: studentId,
+          schoolYear: schoolYear,
+          semester: semester,
+          offset: offset,
+          limit: limit,
+          cmndFamily: userId,
+          contactBookId: id
+        });
+        
+        if (data.recordset.length == 0) {
+          return result(
+            Status.APIStatus.NotFound,
+            null,
+            "Không tìm thấy dữ liệu tương ứng với id bằng " + id,
+            0,
+            null
+          );
+        }
+        //Status, Data,	Message, Total, Headers
+        return result(
+          Status.APIStatus.Ok,
+          data.recordset,
+          "Lấy dữ liệu thành công",
+          data.recordset.length,
+          null
+        );
+    } catch (err) {
+      //Status, Data,	Message, Total, Headers
+      return result(
+        Status.APIStatus.Error,
+        err,
+        "Lấy dữ liệu thất bại",
+        0,
+        null
+      );
+    }
+  };
+
   this.createListManager = async (classId, semester, schoolYear, result) => {
     try {
       if (!semester || !(semester === "HK I" || semester === "HK II")) {

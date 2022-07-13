@@ -158,14 +158,17 @@ exports.updateTeacher = (req, res) => {
 
 exports.getAllTeacher = (req, res) => {
   const id = req.params.id;
+  const studentIdFind = req.query.studentIdFind;
+  const studentNameFind = req.query.studentNameFind;
   const contactBookId = req.query.contactBookId;
   const classId = req.query.classId;
   const studentId = req.query.studentId;
   const schoolYear = req.query.schoolYear;
+  const courceId = req.query.courceId;
   const semester = req.query.semester;
   const offset = req.query.offset;
   const limit = req.query.limit;
-  model.getAllTeacher(id, contactBookId, studentId, req.user.id, schoolYear, semester, offset, limit, classId, function (status, data, message, total, headers) {
+  model.getAllTeacher(id, contactBookId, studentId, req.user.id, schoolYear, semester, offset, limit, classId, courceId, studentIdFind, studentNameFind, function (status, data, message, total, headers) {
     res.send({
       status: status,
       data: data,

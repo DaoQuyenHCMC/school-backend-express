@@ -2,7 +2,7 @@ const express = require("express");
 const Router = express.Router();
 const {createAdmin, updateAdmin, getAllAdmin, transferClassManager, getFamily,
         createManager, updateManager, getAllManager, transferClassAdmin,
-        changePasswordStudent, getAllTeacher, getStudent } = require('../controllers/StudentController');
+        changePasswordStudent, getAllTeacherHomeRoom, getStudent, getAllTeacherCourse } = require('../controllers/StudentController');
 const {verifyToken} = require('../middleware/verifyToken');
 const {checkRoleAdmin, checkRoleFamily, checkRoleManager, checkRoleTeacher, checkRoleStudent} = require('../middleware/checkRole');
 
@@ -22,8 +22,12 @@ Router.route("/change-password").put(verifyToken, checkRoleStudent, changePasswo
 Router.route("/student").get(verifyToken, checkRoleStudent, getStudent);
 
 Router.route("/family").get(verifyToken, checkRoleFamily, getFamily);
+Router.route("/family/:id").get(verifyToken, checkRoleFamily, getFamily);
 
-Router.route("/teacher").get(verifyToken, checkRoleTeacher, getAllTeacher);
-Router.route("/teacher/:id").get(verifyToken, checkRoleTeacher, getAllTeacher);
+Router.route("/teacher-homeroom").get(verifyToken, checkRoleTeacher, getAllTeacherHomeRoom);
+Router.route("/teacher-homeroom/:id").get(verifyToken, checkRoleTeacher, getAllTeacherHomeRoom);
+Router.route("/teacher-course").get(verifyToken, checkRoleTeacher, getAllTeacherCourse);
+Router.route("/teacher-course/:id").get(verifyToken, checkRoleTeacher, getAllTeacherCourse);
+
 
 module.exports = Router;

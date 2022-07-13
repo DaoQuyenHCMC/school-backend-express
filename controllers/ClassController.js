@@ -31,9 +31,10 @@ exports.getAllManager = (req, res) => {
   const gradeId = req.query.gradeId;
   const teacherId = req.query.teacherId;
   const schoolId = req.query.schoolId;
+  const className = req.query.className;
   const offset = req.query.offset;
   const limit = req.query.limit;
-  model.getAllManager(id, gradeId, teacherId, schoolId, offset, limit, function (status, data, message, total, headers) {
+  model.getAllManager(id, gradeId, teacherId, schoolId, offset, limit, className, function (status, data, message, total, headers) {
     res.send({
       status: status,
       data: data,
@@ -102,9 +103,10 @@ exports.getAllAdmin = (req, res) => {
   const id = req.params.id;
   const gradeId = req.query.gradeId;
   const teacherId = req.query.teacherId;
+  const className = req.query.className;
   const offset = req.query.offset;
   const limit = req.query.limit;
-  model.getAllAdmin(id, gradeId, teacherId, req.user.id, offset, limit, function (status, data, message, total, headers) {
+  model.getAllAdmin(id, gradeId, teacherId, req.user.id, offset, limit, className, function (status, data, message, total, headers) {
     res.send({
       status: status,
       data: data,

@@ -55,11 +55,11 @@ module.exports = function () {
   this.createManager = async (newData, userId, result) => {
     // Gán dữ liệu
     school = {
-      id: newData.id || null,
-      name: newData.name || null,
-      address: newData.address || null,
-      type: newData.type || null,
-      description: newData.description || null,
+      id: newData.id,
+      name: newData.name,
+      address: newData.address,
+      type: newData.type,
+      description: newData.description,
       createBy: userId,
       updateBy: userId
     };
@@ -224,11 +224,11 @@ module.exports = function () {
   this.createAdmin = async (newData, userId, result) => {
     // Gán dữ liệu
     school = {
-      id: newData.id || null,
-      name: newData.name || null,
-      address: newData.address || null,
-      type: newData.type || null,
-      description: newData.description || null,
+      id: newData.id,
+      name: newData.name,
+      address: newData.address,
+      type: newData.type,
+      description: newData.description,
       createBy: userId,
       updateBy: userId
     };
