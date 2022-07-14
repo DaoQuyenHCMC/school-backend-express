@@ -89,7 +89,7 @@ module.exports = function () {
       return result(Status.APIStatus.Ok, school, "Tạo dữ liệu thành công", 1, null);
     } catch (err) {
       //Status, Data,	Message, Total, Headers
-      return result(Status.APIStatus.Error, null, "Tạo dữ liệu thất bại", 0, null);
+      return result(Status.APIStatus.Error, null, "Sai kiểu dữ liệu", 0, null);
     }
   };
 

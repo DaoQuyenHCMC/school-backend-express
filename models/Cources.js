@@ -4,7 +4,7 @@ const { conn, sql } = require("../config/db");
 module.exports = function () {
 
   const baseUrlStart = "SELECT c.id classId, c.[name] className, t.id teacherId, t.[name] teacherName, sc.[name] schoolName, t.school_id schoolId, g.id gradeId, g.[name] gradeName, " +
-    "cour.id idCources, cour.[name] nameCources, year.id schoolYear, cour.semester, sb.id subjectId FROM dbo.cources cour  " +
+    "cour.id idCources, cour.[name] nameCources, year.id schoolYear, year.name yearName, cour.semester, sb.id subjectId FROM dbo.cources cour  " +
     "LEFT JOIN dbo.class c ON cour.class_id = c.id " +
     "LEFT JOIN dbo.teacher t ON cour.teacher_id = t.id " +
     "LEFT JOIN dbo.school sc ON cour.school_id = sc.id " +
@@ -26,12 +26,14 @@ module.exports = function () {
     semester,
     yearId,
     offset,
-    limit
+    limit, 
+    courseNameFind, 
+    courseIdFind
   }) {
     const pool = await conn;
     var sqlString = baseUrlStart;
 
-    if (classId || teacherId || schoolId || gradeId || courceId || studentId || semester || yearId) {
+    if (classId || teacherId || schoolId || gradeId || courceId || studentId || semester || yearId || courseNameFind || courseIdFind) {
       if (studentId) {
         sqlString += "INNER JOIN dbo.student s ON s.class_id = c.id "
         sqlString += "WHERE s.id = @studentId ";
@@ -107,6 +109,30 @@ module.exports = function () {
 
       if (yearId) {
         sqlString += "year.id = @yearId ";
+      }
+
+      if (
+        sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
+        "WHERE" &&
+        courseIdFind
+      ) {
+        sqlString += "AND ";
+      }
+
+      if (courseIdFind) {
+        if (courseIdFind) sqlString += " cour.[id] like '%" + courseIdFind +"%' ";
+      }
+
+      if (
+        sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
+        "WHERE" &&
+        courseNameFind
+      ) {
+        sqlString += "AND ";
+      }
+
+      if (courseNameFind) {
+        if (courseNameFind) sqlString += " cour.[name] like N'%" + courseNameFind +"%' ";
       }
     }
 
@@ -259,7 +285,9 @@ module.exports = function () {
     semester,
     yearId,
     offset,
-    limit
+    limit,
+    courseNameFind,
+    courseIdFind
   }) {
     const pool = await conn;
     var sqlString = baseUrlStart;
@@ -276,6 +304,8 @@ module.exports = function () {
     // if (gradeId) sqlString += "AND c.grade_id = @gradeId ";
     if (courceId) sqlString += "AND cour.id = @courceId ";
     if (yearId) sqlString += "AND year.id = @yearId ";
+    if (courseNameFind) sqlString += "AND cour.[name] like N'%" + courseNameFind +"%' ";
+    if (courseIdFind) sqlString += "AND cour.[id] like '%" + courseIdFind +"%' ";
     sqlString += baseUrlEndAdmin;
     if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
@@ -366,12 +396,17 @@ module.exports = function () {
     classId,
     courceId,
     limit,
-    offset }) {
+    offset, 
+    courseNameFind, 
+    courseIdFind 
+  }) {
     const pool = await conn;
     var sqlString = baseUrlStart;
     sqlString += "WHERE cour.teacher_id = @teacherId ";
     if (classId) sqlString += "AND c.id = @classId ";
     if (courceId) sqlString += "AND cour.id = @courceId ";
+    if (courseNameFind) sqlString += "AND cour.[name] like N'%" + courseNameFind +"%' ";
+    if (courseIdFind) sqlString += "AND cour.[id] like '%" + courseIdFind +"%' ";
     sqlString += baseUrlEndAdmin;
     if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()

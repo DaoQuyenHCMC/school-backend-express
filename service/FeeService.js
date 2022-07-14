@@ -185,7 +185,7 @@ module.exports = function () {
     }
   };
 
-  this.getAllManager = async (id, contactBookId, studentId, offset, limit, result) => {
+  this.getAllManager = async (id, contactBookId, studentId, offset, limit, classNameFind, studentIdFind, yearNameFind, result) => {
     try {
       if (id) {
         // Lấy tất cả dữ liệu
@@ -227,7 +227,10 @@ module.exports = function () {
           contactBookId: contactBookId,
           studentId: studentId,
           offset: offset,
-          limit: limit
+          limit: limit, 
+          classNameFind: classNameFind, 
+          studentIdFind: studentIdFind, 
+          yearNameFind: yearNameFind
         });
         //Status, Data,	Message, Total, Headers
         result(
@@ -550,7 +553,7 @@ this.updateAdmin = async (newData, userId, result) => {
   }
 };
 
-this.getAllAdmin = async (id, contactBookId, studentId, userId, offset, limit, result) => {
+this.getAllAdmin = async (id, contactBookId, studentId, userId, offset, limit, classNameFind, studentIdFind, yearNameFind, result) => {
   try {
     if (contactBookId && !(contactBookId % 1 === 0)) {
       //Status, Data,	Message, Total, Headers
@@ -569,7 +572,10 @@ this.getAllAdmin = async (id, contactBookId, studentId, userId, offset, limit, r
       studentId: studentId,
       userId: userId,
       offset: offset,
-      limit: limit
+      limit: limit, 
+      classNameFind: classNameFind, 
+      studentIdFind: studentIdFind, 
+      yearNameFind: yearNameFind
     });
     if (data.recordset.length == 0) {
       return result(

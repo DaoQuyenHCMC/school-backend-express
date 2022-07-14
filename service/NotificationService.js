@@ -99,7 +99,8 @@ module.exports = function () {
       object: newData.object || '5',
       startDay: newData.startDay,
       endDay: newData.endDay,
-      status: 'APPROVE'
+      status: 'APPROVE',
+      createBy: userId 
     };
     try {
       if (notification.extracurricularActivitiesId) {
@@ -471,18 +472,19 @@ module.exports = function () {
 
   this.createTeacher = async (newData, userId, result) => {
     try {
-      if(!newData.classId){
+      if(!newData.classId || !newData.courseId){
         return result(
           Status.APIStatus.Invalid,
           null,
-          "Vui lòng truyền thông tin lớp học",
+          "Vui lòng truyền đầy đủ thông tin lớp học và khóa học",
           0,
           null
         );
       }
       dataStudent = await modelStudent.getAllTeacherCourse({
         userId: userId,
-        classId: newData.classId
+        classId: newData.classId,
+        courseId: newData.courseId
       });
       if (dataStudent.recordset.length === 0) {
         //Status, Data,	Message, Total, Headers

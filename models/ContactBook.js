@@ -21,11 +21,15 @@ module.exports = function () {
     offset,
     limit,
     cmndFamily,
-    contactBookId
+    contactBookId, 
+    classNameFind, 
+    studentNameFind, 
+    studentIdFind, 
+    yearNameFind
   }) {
     const pool = await conn;
     var sqlString = baseUrlStart;
-    if (studentId || teacherId || schoolYear || studentName || semester || cmndFamily || contactBookId) {
+    if (studentId || teacherId || schoolYear || studentName || semester || cmndFamily || contactBookId || classNameFind || studentNameFind || studentIdFind || yearNameFind) {
       sqlString += "WHERE ";
       if (studentId) sqlString += " cb.student_id = @studentId ";
       if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && teacherId) sqlString += "AND ";
@@ -40,6 +44,14 @@ module.exports = function () {
       if (cmndFamily) sqlString += " f.cmnd = @cmndFamily ";
       if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && contactBookId) sqlString += "AND ";
       if (contactBookId) sqlString += " cb.id = @contactBookId ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && classNameFind) sqlString += "AND ";
+      if (classNameFind) sqlString += " cb.class_name like N'%" + classNameFind + "%' ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && studentNameFind) sqlString += "AND ";
+      if (studentNameFind) sqlString += " s.[name] like N'%" + studentNameFind + "%' ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && studentIdFind) sqlString += "AND ";
+      if (studentIdFind) sqlString += " s.[id] like '%" + studentIdFind + "%' ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && yearNameFind) sqlString += "AND ";
+      if (yearNameFind) sqlString += " y.[name] like '%" + yearNameFind + "%' ";
     }
     sqlString += baseUrlEndAdmin;
     if (limit && offset) sqlString += baseUrlPagination;
@@ -64,7 +76,11 @@ module.exports = function () {
     contactBookId,
     semester,
     limit,
-    offset
+    offset, 
+    classNameFind, 
+    studentNameFind, 
+    studentIdFind, 
+    yearNameFind
   }) {
     const pool = await conn;
     var sqlString = baseUrlStart + "WHERE t.school_id = dbo.GetIdSchoolFromIdTeacher(@userId) ";
@@ -74,6 +90,10 @@ module.exports = function () {
     if (studentName) sqlString += "AND s.[name] = N'" + studentName + "' ";
     if (contactBookId) sqlString += "AND cb.id = @contactBookId ";
     if (semester) sqlString += "AND cb.semester = @semester ";
+    if (studentNameFind) sqlString += "AND s.[name] like N'%" + studentNameFind + "%' ";
+    if (studentIdFind) sqlString += "AND s.[id] like '%" + studentIdFind + "%' ";
+    if (yearNameFind) sqlString += "AND y.[name] like '%" + yearNameFind + "%' ";
+    if (classNameFind) sqlString += "AND cb.class_name like N'%" + classNameFind + "%' ";
     sqlString += baseUrlEndAdmin;
     if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()

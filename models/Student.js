@@ -427,7 +427,8 @@ module.exports = function () {
   this.getAllTeacherCourse = async function ({
     userId,
     studentId,
-    classId
+    classId,
+    courseId
   }) {
     const pool = await conn;
     var sqlString =
@@ -436,10 +437,12 @@ module.exports = function () {
       "where cour.teacher_id = @userId ";
     if(studentId) sqlString += "and s.id = @studentId "
     if(classId) sqlString += " and s.class_id = @classId "
+    if(courseId) sqlString += " and cour.id = @courseId "
     return await pool.request()
       .input("userId", sql.VarChar, userId)
       .input("studentId", sql.VarChar, studentId)
       .input("classId", sql.Int, classId)
+      .input("courseId", sql.Int, courseId)
       .query(sqlString);
   };
 

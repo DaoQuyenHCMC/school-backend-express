@@ -11,7 +11,10 @@ module.exports = function () {
     limit,
     feeId,
     cmndFamily,
-    status
+    status,
+    classNameFind,
+    studentIdFind,
+    yearNameFind
   }) {
     const pool = await conn;
     var sqlString = "SELECT f.id, f.contact_book_id contactBookId, f.tuition_fee tuitionFee, f.status, f.date_fee dateFee, ct.student_id studentId, ct.teacher_id teacherId, ct.school_year schoolYear, ct.semester, ct.class_name className, y.name year FROM dbo.fee f "
@@ -19,7 +22,7 @@ module.exports = function () {
       + " LEFT JOIN dbo.student s ON s.id = ct.student_id "
       + " LEFT JOIN dbo.family fa ON fa.cmnd = s.cmnd_family "
       + " LEFT JOIN dbo.school_year y ON ct.school_year = y.id ";
-    if (contactBookId || studentId || feeId || cmndFamily || status) {
+    if (contactBookId || studentId || feeId || cmndFamily || status || classNameFind || studentIdFind || yearNameFind) {
       sqlString += "WHERE ";
       if (contactBookId) sqlString += " f.contact_book_id = @contactBookId ";
       if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && studentId) sqlString += "AND ";
@@ -30,6 +33,12 @@ module.exports = function () {
       if (cmndFamily) sqlString += " fa.cmnd = @cmndFamily ";
       if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && status) sqlString += "AND ";
       if (status) sqlString += " f.status = @status ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && classNameFind) sqlString += "AND ";
+      if (classNameFind) sqlString += " ct.class_name like '%" + classNameFind + "%' ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && studentIdFind) sqlString += "AND ";
+      if (studentIdFind) sqlString += " s.id like '%" + studentIdFind + "%' ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && yearNameFind) sqlString += "AND ";
+      if (yearNameFind) sqlString += " y.name = like '%" + yearNameFind + "%' ";
     }
     sqlString += " ORDER BY y.name, ct.class_name, f.date_fee ";
     if (limit && offset) sqlString += baseUrlPagination;
@@ -44,26 +53,20 @@ module.exports = function () {
       .query(sqlString);
   }
 
-  this.getAllAdmin = async function ({ contactBookId, studentId, feeId, userId, offset, limit }) {
+  this.getAllAdmin = async function ({ contactBookId, studentId, feeId, userId, offset, limit, classNameFind, studentIdFind, yearNameFind }) {
     const pool = await conn;
     var sqlString = "SELECT f.id, f.contact_book_id contactBookId, f.tuition_fee tuitionFee, f.status, f.date_fee dateFee, ct.student_id studentId, ct.teacher_id teacherId, ct.school_year schoolYear, ct.semester, ct.class_name className, y.name year FROM dbo.fee f "
       + " LEFT JOIN dbo.contact_book ct ON ct.id = f.contact_book_id "
       + " LEFT JOIN dbo.school_year y ON ct.school_year = y.id "
       + "LEFT  JOIN dbo.teacher t ON ct.teacher_id = t.id "
+      + " LEFT JOIN dbo.student s ON s.id = ct.student_id "
       + " WHERE t.school_id = dbo.GetIdSchoolFromIdTeacher(@userId) ";
-    if (contactBookId || studentId || feeId) {
-      if (contactBookId) {
-        sqlString += "AND f.contact_book_id = @contactBookId ";
-      }
-
-      if (studentId) {
-        sqlString += "AND ct.student_id = @studentId ";
-      }
-
-      if (feeId) {
-        sqlString += "AND f.id = @feeId ";
-      }
-    }
+    if (contactBookId) sqlString += "AND f.contact_book_id = @contactBookId ";
+    if (studentId) sqlString += "AND ct.student_id = @studentId ";
+    if (feeId) sqlString += "AND f.id = @feeId ";
+    if (classNameFind) sqlString += "AND ct.class_name like '%" + classNameFind + "%' ";
+    if (studentIdFind) sqlString += "AND s.id like '%" + studentIdFind + "%' ";
+    if (yearNameFind) sqlString += "AND y.name = like '%" + yearNameFind + "%' ";
     sqlString += " ORDER BY y.name, ct.class_name, f.date_fee ";
     if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()

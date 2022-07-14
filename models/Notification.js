@@ -287,7 +287,7 @@ module.exports = function () {
       .input("createBy", sql.VarChar, newData.createBy)
       .input("approveBy", sql.VarChar, newData.approveBy)
       .input("status", sql.VarChar, newData.status || 'default')
-      .input("startDay", sql.Date, newData.startDay)
+      .input("startDay", sql.Date, newData.startDay || Date.now())
       .input("createDay", sql.DateTime, Date.now())
       .input("endDay", sql.Date, newData.endDay)
       .query(sqlString);

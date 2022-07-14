@@ -96,10 +96,14 @@ exports.getAllManager = (req, res) => {
   const teacherId = req.query.teacherId;
   const schoolYear = req.query.schoolYear;
   const studentName = req.query.studentName;
+  const classNameFind = req.query.classNameFind;
+  const studentNameFind = req.query.studentNameFind;
+  const studentIdFind = req.query.studentIdFind;
+  const yearNameFind = req.query.yearNameFind;
   const semester = req.query.semester;
   const offset = req.query.offset;
   const limit = req.query.limit;
-  model.getAllManager(id, studentId, teacherId, schoolYear, studentName, semester, offset, limit, function (status, data, message, total, headers) {
+  model.getAllManager(id, studentId, teacherId, schoolYear, studentName, semester, offset, limit, classNameFind, studentNameFind, studentIdFind, yearNameFind, function (status, data, message, total, headers) {
     res.send({
       status: status,
       data: data,
@@ -169,10 +173,14 @@ exports.getAllAdmin = (req, res) => {
   const teacherId = req.query.teacherId;
   const schoolYear = req.query.schoolYear;
   const studentName = req.query.studentName;
+  const classNameFind = req.query.classNameFind;
+  const studentNameFind = req.query.studentNameFind;
+  const studentIdFind = req.query.studentIdFind;
+  const yearNameFind = req.query.yearNameFind;
   const semester = req.query.semester;
   const offset = req.query.offset;
   const limit = req.query.limit;
-  model.getAllAdmin(id, studentId, teacherId, schoolYear, studentName, req.user.id, semester, offset, limit, function (status, data, message, total, headers) {
+  model.getAllAdmin(id, studentId, teacherId, schoolYear, studentName, req.user.id, semester, offset, limit, classNameFind, studentNameFind, studentIdFind, yearNameFind, function (status, data, message, total, headers) {
     res.send({
       status: status,
       data: data,
@@ -243,9 +251,13 @@ exports.getAllTeacher = (req, res) => {
   const teacherId = req.query.teacherId;
   const schoolYear = req.query.schoolYear;
   const studentName = req.query.studentName;
+  const classNameFind = req.query.classNameFind;
+  const studentNameFind = req.query.studentNameFind;
+  const studentIdFind = req.query.studentIdFind;
+  const yearNameFind = req.query.yearNameFind;
   const offset = req.query.offset;
   const limit = req.query.limit;
-  model.getAllTeacher(id, studentId, teacherId, schoolYear, studentName, req.user.id, offset, limit, function (status, data, message, total, headers) {
+  model.getAllTeacher(id, studentId, teacherId, schoolYear, studentName, req.user.id, offset, limit, classNameFind, studentNameFind, studentIdFind, yearNameFind, function (status, data, message, total, headers) {
     res.send({
       status: status,
       data: data,

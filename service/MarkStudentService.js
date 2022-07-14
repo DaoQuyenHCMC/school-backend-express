@@ -395,7 +395,7 @@ module.exports = function () {
     }
   };
 
-  this.getAllManager = async (id, contactBookId, studentId, schoolYear, courceId, offset, limit, result) => {
+  this.getAllManager = async (id, contactBookId, studentId, schoolYear, courceId, offset, limit, courseNameFind, studentNameFind, studentIdFind, yearNameFind, result) => {
     try {
       // Lấy tất cả dữ liệu
       data = await model.getAll({
@@ -405,7 +405,11 @@ module.exports = function () {
         markId: id,
         courceId: courceId,
         offset: offset,
-        limit: limit
+        limit: limit,
+        courseNameFind: courseNameFind,
+        studentNameFind: studentNameFind,
+        studentIdFind: studentIdFind,
+        yearNameFind: yearNameFind
       });
       if (data.recordset.length === 0) {
         return result(
@@ -570,7 +574,7 @@ module.exports = function () {
     }
   };
 
-  this.getAllAdmin = async (id, contactBookId, studentId, userId, schoolYear, offset, limit, result) => {
+  this.getAllAdmin = async (id, contactBookId, studentId, userId, schoolYear, offset, limit, courseNameFind, studentNameFind, studentIdFind, yearNameFind, result) => {
     try {
       // Lấy tất cả dữ liệu
       data = await model.getAllAdmin({
@@ -580,7 +584,11 @@ module.exports = function () {
         schoolYear: schoolYear,
         markId: id,
         offset: offset,
-        limit: limit
+        limit: limit,
+        courseNameFind: courseNameFind,
+        studentNameFind: studentNameFind,
+        studentIdFind: studentIdFind,
+        yearNameFind: yearNameFind
       });
       if (data.recordset.length === 0) {
         return result(
@@ -714,7 +722,7 @@ module.exports = function () {
     }
   };
 
-  this.getAllTeacher = async (id, contactBookId, studentId, userId, schoolYear, semester, offset, limit, classId, courceId, studentIdFind, studentNameFind, result) => {
+  this.getAllTeacher = async (id, contactBookId, studentId, userId, schoolYear, semester, offset, limit, classId, courceId, studentIdFind, studentNameFind, courseNameFind, yearNameFind, result) => {
     try {
       // Lấy tất cả dữ liệu
       data = await model.getAllTeacher({
@@ -729,7 +737,9 @@ module.exports = function () {
         classId: classId,
         courceId: courceId, 
         studentIdFind: studentIdFind, 
-        studentNameFind: studentNameFind
+        studentNameFind: studentNameFind, 
+        courseNameFind: courseNameFind, 
+        yearNameFind: yearNameFind
       });
       if (data.recordset.length == 0) {
         return result(
@@ -755,13 +765,14 @@ module.exports = function () {
     }
   };
 
-  this.getAllTeacherClass = async (userId, yearId, semester, result) => {
+  this.getAllTeacherClass = async (userId, yearId, semester, courseId, result) => {
     try {
       // Lấy tất cả dữ liệu
       data = await model.getAllTeacherClass({
         userId: userId,
         yearId: yearId,
-        semester: semester
+        semester: semester,
+        courseId: courseId
       });
       if (data.recordset.length == 0) {
         return result(

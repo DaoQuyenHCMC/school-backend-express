@@ -98,7 +98,7 @@ module.exports = function () {
       );
     } catch (err) {
       //Status, Data,	Message, Total, Headers
-      result(Status.APIStatus.Error, null, "Tạo dữ liệu thất bại", 0, null);
+      result(Status.APIStatus.Error, null, "Sai kiểu dữ liệu", 0, null);
     }
   };
 
@@ -156,7 +156,7 @@ module.exports = function () {
       );
     } catch (err) {
       //Status, Data,	Message, Total, Headers
-      result(Status.APIStatus.Error, err, "Cập nhật dữ liệu thất bại", 0, null);
+      result(Status.APIStatus.Error, err, "Sai kiểu dữ liệu", 0, null);
     }
   };
 
@@ -255,12 +255,7 @@ module.exports = function () {
     };
 
     try {
-      // Kiểm tra dữ liệu khóa ngoại roleId và schoolId có tồn tại
-      var checkDataFK = await checkSchool(extracurricularActivities.schoolId);
-      if (checkDataFK != null) {
-        return result(Status.APIStatus.Invalid, null, checkDataFK, 0, null);
-      }
-
+      extracurricularActivities.schoolId = await (await modelSchool.getSchoolIdFromTeacher({ userId: userId })).recordset[0].schoolId;
       // Thêm dữ liệu
       dataCreate = await model.create(extracurricularActivities);
       //Status, Data,	Message, Total, Headers
@@ -296,35 +291,31 @@ module.exports = function () {
         return result(
           Status.APIStatus.NotFound,
           null,
-          "Not found any matched with id equal " + newData.id,
+          "Không tìm thấy dữ liệu",
           0,
           null
         );
       }
 
-      // Kiểm tra dữ liệu khóa ngoại roleId và schoolId có tồn tại
-      var checkDataFK = await checkSchool(newData.schoolId);
-      if (checkDataFK != null) {
-        return result(Status.APIStatus.Invalid, null, checkDataFK, 0, null);
-      }
-
+     
       // Gán giá trị cho dữ liệu
       extracurricularActivities = {
         id: newData.id,
         title: newData.title || dataCheck.recordset[0].title,
         location: newData.location || dataCheck.recordset[0].location,
-        schoolId: newData.schoolId || dataCheck.recordset[0].schoolId,
         day: newData.day || dataCheck.recordset[0].day,
         time: newData.time || dataCheck.recordset[0].time,
         description: newData.description || dataCheck.recordset[0].description,
       };
 
+      extracurricularActivities.schoolId =await (await modelSchool.getSchoolIdFromTeacher({ userId: userId })).recordset[0].schoolId;
+     
       // Update dữ liệu
       dataUpdate = await model.update(extracurricularActivities);
       //Status, Data,	Message, Total, Headers
       result(
         Status.APIStatus.Ok,
-        extracurricularActivities,
+        null,
         "Cập nhật dữ liệu thành công",
         1,
         null
@@ -356,13 +347,13 @@ module.exports = function () {
       result(
         Status.APIStatus.Ok,
         data.recordset,
-        "Get all successfull ",
+        "Lấy dữ liệu thành công ",
         data.recordset.length,
         null
       );
     } catch (err) {
       //Status, Data,	Message, Total, Headers
-      result(Status.APIStatus.Error, err, "Get all failed", 0, null);
+      result(Status.APIStatus.Error, err, "Sai kiểu dữ liệu", 0, null);
     }
   };
 

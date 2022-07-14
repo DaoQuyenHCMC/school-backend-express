@@ -180,7 +180,7 @@ module.exports = function () {
         }
     };
 
-    this.getAllManager = async (id, gradeId, teacherId, schoolId, classId, studentId, semester, yearId, offset, limit, result) => {
+    this.getAllManager = async (id, gradeId, teacherId, schoolId, classId, studentId, semester, yearId, offset, limit, courseNameFind, courseIdFind, result) => {
         try {
             // Lấy tất cả dữ liệu
             data = await model.getAllManager({
@@ -193,7 +193,9 @@ module.exports = function () {
                 semester: semester,
                 yearId: yearId,
                 offset: offset,
-                limit: limit
+                limit: limit,
+                courseNameFind: courseNameFind,
+                courseIdFind: courseIdFind
             });
             if (data.recordset.length === 0) {
                 //Status, Data,	Message, Total, Headers
@@ -450,7 +452,7 @@ module.exports = function () {
         }
     };
 
-    this.getAllAdmin = async (id, gradeId, teacherId, userId, classId, studentId, semester, yearId, offset, limit, result) => {
+    this.getAllAdmin = async (id, gradeId, teacherId, userId, classId, studentId, semester, yearId, offset, limit, courseNameFind, courseIdFind, result) => {
         try {
             // Lấy tất cả dữ liệu
             data = await model.getAllAdmin({
@@ -463,7 +465,9 @@ module.exports = function () {
                 yearId: yearId,
                 userId: userId,
                 offset: offset,
-                limit: limit
+                limit: limit,
+                courseNameFind: courseNameFind,
+                courseIdFind: courseIdFind
             });
             if (data.recordset.length === 0) {
                 //Status, Data,	Message, Total, Headers
@@ -567,7 +571,7 @@ module.exports = function () {
         }
     };
 
-    this.getAllTeacher = async (id, gradeId, userId, classId, offset, limit, result) => {
+    this.getAllTeacher = async (id, gradeId, userId, classId, offset, limit, courseNameFind, courseIdFind, result) => {
         try {
             // Kiểm tra kiểu dữ liệu và required của khóa chính
             if (id && !(id % 1 === 0)) {
@@ -588,7 +592,9 @@ module.exports = function () {
                 teacherId: userId,
                 courceId: id,
                 offset: offset,
-                limit: limit
+                limit: limit,
+                courseNameFind: courseNameFind,
+                courseIdFind: courseIdFind
             });
             if (data.recordset.length === 0) {
                 //Status, Data,	Message, Total, Headers
