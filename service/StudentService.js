@@ -238,7 +238,7 @@ module.exports = function () {
         schoolId: newData.schoolId || dataCheck.schoolId,
         updateBy: userId,
       };
-
+      email = "";
       // Kiểm tra cho email trong bảng student
       if (newData.email !== dataCheck.email) email = newData.email;
       // kiểm trả dữ liệu có tồn tại

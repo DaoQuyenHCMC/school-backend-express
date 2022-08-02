@@ -119,4 +119,17 @@ module.exports = function () {
       .input("gradeId", sql.Int, gradeId)
       .query(sqlString);
   };
+
+  this.checkNameWithSchoolId = async function ({ gradeName, schoolId }) {
+    const pool = await conn;
+    var sqlString =
+      "SELECT 1 FROM dbo.Grade g " +
+      " WHERE name = N'" + gradeName + "' AND school_id = @schoolId";
+    return await pool.request()
+      .input("schoolId", sql.VarChar, schoolId)
+      .query(sqlString);
+  };
+
+
+
 }

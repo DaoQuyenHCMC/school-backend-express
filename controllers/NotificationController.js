@@ -394,6 +394,21 @@ exports.getAllRequestAdminFromStudent = (req, res) => {
   });
 };
 
+exports.getAllRequestAdminFromFamily = (req, res) => {
+  const status = req.query.status;
+  const offset = req.query.offset;
+  const limit = req.query.limit;
+  model.getAllRequestAdminFromFamily(req.user.id, status, offset, limit, function (status, data, message, total, headers) {
+    res.send({
+      status: status,
+      data: data,
+      message: message,
+      total: total,
+      headers: headers,
+    });
+  });
+};
+
 exports.deleteAdmin = (req, res) => {
   const id = req.query.id;
   model.deleteAdmin(id, req.user.id, function (status, data, message, total, headers) {

@@ -118,7 +118,9 @@ module.exports = function () {
       "LEFT JOIN dbo.[role] r ON s.role_id = r.id " +
       "LEFT JOIN dbo.grade g ON g.id = c.grade_id ";
 
-    if (classId || teacherId || schoolId || gradeId || studentId || studentIdFind || studentNameFind) {
+    if (classId || teacherId || schoolId || gradeId || studentId 
+      || (studentIdFind && studentIdFind != 'undefined') 
+      || (studentNameFind && studentNameFind != 'undefined')) {
       sqlString += "WHERE ";
       if (classId) {
         sqlString += "s.class_id = @classId ";
@@ -163,31 +165,31 @@ module.exports = function () {
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
         "WHERE" &&
-        studentIdFind
+        studentIdFind && studentIdFind != 'undefined'
       ) {
         sqlString += "AND ";
       }
 
-      if (studentIdFind) {
+      if (studentIdFind && studentIdFind != 'undefined') {
         sqlString += "s.id like '%" + studentIdFind + "%' ";
       }
 
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
         "WHERE" &&
-        studentNameFind
+        studentNameFind && studentNameFind != 'undefined'
       ) {
         sqlString += "AND ";
       }
 
-      if (studentNameFind) {
+      if (studentNameFind && studentNameFind != 'undefined') {
         sqlString += "s.name like N'%" + studentNameFind + "%' ";
       }
 
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
         "WHERE" &&
-        studentId
+        studentId 
       ) {
         sqlString += "AND ";
       }
@@ -234,8 +236,8 @@ module.exports = function () {
       if (teacherId) sqlString += "AND c.teacher_id = @teacherId "; 
       if (gradeId) sqlString += "AND c.grade_id = @gradeId "; 
       if (studentId) sqlString += "AND s.id = @studentId "; 
-      if (studentIdFind) sqlString += "AND s.id like '%" + studentIdFind + "%' ";
-      if (studentNameFind) sqlString += "AND s.name like N'%" + studentNameFind + "%' ";
+      if (studentIdFind && studentIdFind != 'undefined') sqlString += "AND s.id like '%" + studentIdFind + "%' ";
+      if (studentNameFind && studentNameFind != 'undefined') sqlString += "AND s.name like N'%" + studentNameFind + "%' ";
     sqlString += " ORDER BY g.[name], c.[name], s.id ";
     if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
@@ -361,7 +363,7 @@ module.exports = function () {
   }) {
     const pool = await conn;
     var sqlString =
-      "SELECT s.id, s.email, s.[name], s.phone, s.[address], s.[status], s.role_id roleId, r.[name] roleName, s.class_id classId, c.[name] className, s.cmnd_family cmndFamily, t.id teacherId, t.[name] teacherName, sc.[name] schoolName, t.school_id schoolId, g.id gradeId, g.[name] gradeName, f.cmnd CMNDFamily, f.name nameFamily FROM dbo.student s " +
+      "SELECT s.id, s.email, s.[name], s.phone, s.[address], s.[status], s.role_id roleId, r.[name] roleName, s.class_id classId, c.[name] className, s.cmnd_family cmndFamily, t.id teacherId, t.[name] teacherName, sc.[name] schoolName, t.school_id schoolId, g.id gradeId, g.[name] gradeName, f.phone phoneFamily, f.name nameFamily FROM dbo.student s " +
       "LEFT JOIN dbo.class c ON s.class_id = c.id " +
       "LEFT  JOIN dbo.teacher t ON c.teacher_id = t.id " +
       "LEFT JOIN dbo.school sc ON t.school_id = sc.id " +

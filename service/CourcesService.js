@@ -373,9 +373,9 @@ module.exports = function () {
                 teacherId: newData.teacherId || dataCheck.teacherId, // xét
                 classId: newData.classId || dataCheck.classId, // xet
                 schoolId: newData.schoolId || dataCheck.schoolId, // xét
-                name: newData.name || dataCheck.name,
+                name: newData.name || dataCheck.nameCources,
                 subjectId: newData.subjectId || dataCheck.subjectId, // xét
-                yearId: newData.yearId || dataCheck.yearId,
+                yearId: newData.yearId || dataCheck.schoolYear,
                 semester: newData.semester || dataCheck.semester,
             };
 
@@ -424,12 +424,13 @@ module.exports = function () {
                 );
             }
             cource = {
+                id: dataCheck.idCources,
                 teacherId: newData.teacherId || dataCheck.teacherId, // xét
                 classId: newData.classId || dataCheck.classId, // xet
                 schoolId: dataCheck.schoolId, // xét
-                name: newData.name || dataCheck.name,
+                name: newData.name || dataCheck.nameCources,
                 subjectId: newData.subjectId || dataCheck.subjectId, // xét
-                yearId: newData.yearId || dataCheck.yearId,
+                yearId: newData.yearId || dataCheck.schoolYear,
             };
             cource.schoolId = await (await modelSchool.getSchoolIdFromTeacher({ userId: userId })).recordset[0].schoolId;
             var checkDataFK = await checkSchoolClassTeacherSubjectYear(

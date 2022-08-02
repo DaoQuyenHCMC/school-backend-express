@@ -16,10 +16,15 @@ module.exports = function () {
 
   const baseUrlPagination = "OFFSET (@offset-1)*@limit ROWS FETCH NEXT @limit ROWS ONLY ";
 
-  this.getAll = async function ({ contactBookId, studentId, schoolYear, markId, courceId, offset, limit, courseNameFind, studentNameFind, studentIdFind, yearNameFind }) {
+  this.getAll = async function ({ contactBookId, studentId, schoolYear, markId, courceId, offset, limit, courseNameFind, studentNameFind, studentIdFind, yearNameFind, classNameFind }) {
     const pool = await conn;
     var sqlString = baseUrlStart;
-    if (contactBookId || studentId || schoolYear || markId || courceId || courseNameFind || studentNameFind || studentIdFind || yearNameFind) {
+    if (contactBookId || studentId || schoolYear || markId || courceId 
+      || (courseNameFind && courseNameFind != 'undefined') 
+      || (studentNameFind && studentNameFind != 'undefined')
+      || (studentIdFind && studentIdFind != 'undefined') 
+      || (yearNameFind && yearNameFind != 'undefined')
+      || (classNameFind && classNameFind != 'undefined')) {
       sqlString += "WHERE ";
       if (contactBookId) sqlString += " m.contact_book_id = @contactBookId ";
       if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && studentId) sqlString += "AND "
@@ -30,14 +35,16 @@ module.exports = function () {
       if (markId) sqlString += " m.id = @markId ";
       if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && courceId) sqlString += "AND "
       if (courceId) sqlString += " cour.id = @courceId ";
-      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && courseNameFind) sqlString += "AND "
-      if (courseNameFind) sqlString += " cour.[name] like N'%" + courseNameFind +"%' ";
-      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && studentNameFind) sqlString += "AND "
-      if (studentNameFind) sqlString += "  s.[name] like N'%" + studentNameFind +"%' ";
-      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && studentIdFind) sqlString += "AND "
-      if (studentIdFind) sqlString += " s.id like '%" + studentIdFind +"%' ";
-      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && yearNameFind) sqlString += "AND "
-      if (yearNameFind) sqlString += " y.[name] like N'%" + yearNameFind +"%' ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && courseNameFind && courseNameFind != 'undefined') sqlString += "AND "
+      if (courseNameFind && courseNameFind != 'undefined') sqlString += " cour.[name] like N'%" + courseNameFind +"%' ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && studentNameFind && studentNameFind != 'undefined') sqlString += "AND "
+      if (studentNameFind && studentNameFind != 'undefined') sqlString += "  s.[name] like N'%" + studentNameFind +"%' ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && studentIdFind && studentIdFind != 'undefined') sqlString += "AND "
+      if (studentIdFind && studentIdFind != 'undefined') sqlString += " s.id like '%" + studentIdFind +"%' ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && yearNameFind && yearNameFind  != 'undefined') sqlString += "AND "
+      if (yearNameFind && yearNameFind  != 'undefined') sqlString += " y.[name] like N'%" + yearNameFind +"%' ";
+      if (sqlString.substring(sqlString.length - 6, sqlString.length - 1) !== "WHERE" && classNameFind && classNameFind != 'undefined') sqlString += "AND "
+      if (classNameFind && classNameFind != 'undefined') sqlString += " c.[name] like N'%" + classNameFind +"%' ";
     }
     sqlString += baseUrlEndAdmin;
     if (limit && offset) sqlString += baseUrlPagination;
@@ -52,7 +59,7 @@ module.exports = function () {
       .query(sqlString);
   }
 
-  this.getAllAdmin = async function ({ contactBookId, studentId, userId, schoolYear, markId, offset, limit, courseNameFind, studentNameFind, studentIdFind, yearNameFind }) {
+  this.getAllAdmin = async function ({ contactBookId, studentId, userId, schoolYear, markId, offset, limit, courseNameFind, studentNameFind, studentIdFind, yearNameFind, classNameFind }) {
     const pool = await conn;
     var sqlString = baseUrlStart
       + " WHERE t.school_id = dbo.GetIdSchoolFromIdTeacher(@userId) ";
@@ -60,10 +67,11 @@ module.exports = function () {
     if (studentId) sqlString += "AND cb.student_id = @studentId ";
     if (schoolYear) sqlString += "AND y.id = @schoolYear ";
     if (markId) sqlString += "AND m.id = @markId ";
-    if (courseNameFind) sqlString += "AND cour.[name] like N'%" + courseNameFind +"%' ";
-    if (studentNameFind) sqlString += "AND s.[name] like N'%" + studentNameFind +"%' ";
-    if (studentIdFind) sqlString += "AND s.id like '%" + studentIdFind +"%' ";
-    if (yearNameFind) sqlString += "AND y.[name] like N'%" + yearNameFind +"%' ";
+    if (courseNameFind && courseNameFind != 'undefined') sqlString += "AND cour.[name] like N'%" + courseNameFind +"%' ";
+    if (studentNameFind && studentNameFind != 'undefined') sqlString += "AND s.[name] like N'%" + studentNameFind +"%' ";
+    if (studentIdFind && studentIdFind != 'undefined') sqlString += "AND s.id like '%" + studentIdFind +"%' ";
+    if (yearNameFind && yearNameFind  != 'undefined') sqlString += "AND y.[name] like N'%" + yearNameFind +"%' ";
+    if (classNameFind && classNameFind != 'undefined') sqlString += "AND c.[name] like N'%" + classNameFind +"%' ";
     sqlString += baseUrlEndAdmin;
     if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
@@ -77,7 +85,7 @@ module.exports = function () {
       .query(sqlString);
   }
 
-  this.getAllTeacher = async function ({ contactBookId, studentId, userId, markId, schoolYear, semester, offset, limit, classId, courceId, studentIdFind, studentNameFind, courseNameFind, yearNameFind }) {
+  this.getAllTeacher = async function ({ contactBookId, studentId, userId, markId, schoolYear, semester, offset, limit, classId, courceId, studentIdFind, studentNameFind, courseNameFind, yearNameFind, classNameFind }) {
     const pool = await conn;
     var sqlString = baseUrlStart
       + " WHERE cour.teacher_id = @userId ";
@@ -89,10 +97,11 @@ module.exports = function () {
     if (semester) sqlString += "and cour.semester = @semester ";
     if (classId) sqlString += "and c.id = @classId ";
     if (courceId) sqlString += "and cour.id = @courceId ";
-    if (studentIdFind) sqlString += "and s.id like '%" + studentIdFind + "%' ";
-    if (studentNameFind) sqlString += "and s.[name] like N'%" + studentNameFind + "%' ";
-    if (yearNameFind) sqlString += "AND y.[name] like N'%" + yearNameFind +"%' ";
-    if (courseNameFind) sqlString += "AND cour.[name] like N'%" + courseNameFind +"%' ";
+    if (studentIdFind && studentIdFind != 'undefined') sqlString += "and s.id like '%" + studentIdFind + "%' ";
+    if (studentNameFind && studentNameFind != 'undefined') sqlString += "and s.[name] like N'%" + studentNameFind + "%' ";
+    if (yearNameFind && yearNameFind  != 'undefined') sqlString += "AND y.[name] like N'%" + yearNameFind +"%' ";
+    if (courseNameFind && courseNameFind != 'undefined') sqlString += "AND cour.[name] like N'%" + courseNameFind +"%' ";
+    if (classNameFind && classNameFind != 'undefined') sqlString += "AND c.[name] like N'%" + classNameFind +"%' ";
     sqlString += " ORDER BY s.[name], t.id, s.id, sb.id, cb.id ";
     if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()

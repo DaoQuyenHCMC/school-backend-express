@@ -247,7 +247,7 @@ module.exports = function () {
     }
   };
 
-  this.getAllStudent = async (id, contactBookId, studentId, offset, limit, result) => {
+  this.getAllStudent = async (id, contactBookId, studentId, offset, limit, status, result) => {
     try {
       if (contactBookId && !(contactBookId % 1 === 0)) {
         //Status, Data,	Message, Total, Headers
@@ -265,7 +265,8 @@ module.exports = function () {
         studentId: studentId,
         offset: offset,
         limit: limit,
-        feeId: id
+        feeId: id,
+        status: status
       });
       if (data.recordset.length == 0) {
         return result(

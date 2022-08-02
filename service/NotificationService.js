@@ -224,6 +224,7 @@ module.exports = function () {
         endDay: newData.endDay || dataCheck.recordset[0].endDay
       };
 
+
       // Update dữ liệu
       dataUpdate = await model.update(notification);
       //Status, Data,	Message, Total, Headers
@@ -342,6 +343,15 @@ module.exports = function () {
           return result(Status.APIStatus.NotFound, null, "Không tìm thấy hoạt động yêu cầu", 0, null);
         }
       }
+
+      if (notification.approveBy == 'TEACHER') {
+        dataTeacher = await modelTeacher.getTeacherHomeroomIdFromStudentId({studentId: userId});
+        if (dataTeacher.recordset.length == 0) {
+          return result(Status.APIStatus.NotFound, null, "Hiện bạn chưa có lớp học", 0, null);
+        }
+        notification.approveBy = dataTeacher.recordset[0].teacherId;
+      }
+
       notification.schoolId = await (await modelSchool.getSchoolIdFromStudent({ studentId: userId })).recordset[0].schoolId;
       // Thêm dữ liệu
       dataCreate = await model.create(notification);
@@ -362,8 +372,19 @@ module.exports = function () {
       createBy: userId,
       approveBy: ["TEACHER", "ADMIN"].includes(newData?.approveBy?.toUpperCase()) ? newData.approveBy.toUpperCase() : 'ADMIN',
       object: userId,
+      studentId: newData.studentId
     };
     try {
+      if (notification.approveBy == 'TEACHER') {
+        if(!notification.studentId){
+          return result(Status.APIStatus.Invalid, null, "Bạn chưa chọn học sinh", 0, null);
+        }
+        dataTeacher = await modelTeacher.getTeacherHomeroomIdFromStudentId({cmndFamily: userId, studentId: notification.studentId});
+        if (dataTeacher.recordset.length == 0) {
+          return result(Status.APIStatus.NotFound, null, "Hiện bạn học sinh chưa có lớp học", 0, null);
+        }
+        notification.approveBy = dataTeacher.recordset[0].teacherId;
+      }
       // Thêm dữ liệu
       dataCreate = await model.create(notification);
       //Status, Data,	Message, Total, Headers
@@ -1060,6 +1081,38 @@ module.exports = function () {
     try {
       // Lấy tất cả dữ liệu
       data = await model.getAllRequestAdminFromStudent({
+        userId: userId,
+        status: status,
+        offset: offset,
+        limit: limit
+      });
+      if (data.recordset.length == 0) {
+        return result(
+          Status.APIStatus.NotFound,
+          null,
+          "Không tìm thấy dữ liệu",
+          0,
+          null
+        );
+      }
+      //Status, Data,	Message, Total, Headers
+      result(
+        Status.APIStatus.Ok,
+        data.recordset,
+        "Lấy dữ liệu thành công",
+        data.recordset.length,
+        null
+      );
+    } catch (err) {
+      //Status, Data,	Message, Total, Headers
+      result(Status.APIStatus.Error, null, "Sai kiểu dữ liệu", 0, null);
+    }
+  };
+
+  this.getAllRequestAdminFromFamily = async (userId, status, offset, limit, result) => {
+    try {
+      // Lấy tất cả dữ liệu
+      data = await model.getAllRequestAdminFromFamily({
         userId: userId,
         status: status,
         offset: offset,

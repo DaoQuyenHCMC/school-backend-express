@@ -33,7 +33,9 @@ module.exports = function () {
     const pool = await conn;
     var sqlString = baseUrlStart;
 
-    if (classId || teacherId || schoolId || gradeId || courceId || studentId || semester || yearId || courseNameFind || courseIdFind) {
+    if (classId || teacherId || schoolId || gradeId || courceId || studentId || semester || yearId 
+      || (courseNameFind && courseNameFind != 'undefined') 
+      || (courseIdFind && courseIdFind != 'undefined')) {
       if (studentId) {
         sqlString += "INNER JOIN dbo.student s ON s.class_id = c.id "
         sqlString += "WHERE s.id = @studentId ";
@@ -114,24 +116,24 @@ module.exports = function () {
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
         "WHERE" &&
-        courseIdFind
+        courseIdFind  && courseIdFind != 'undefined'
       ) {
         sqlString += "AND ";
       }
 
-      if (courseIdFind) {
+      if (courseIdFind  && courseIdFind != 'undefined') {
         if (courseIdFind) sqlString += " cour.[id] like '%" + courseIdFind +"%' ";
       }
 
       if (
         sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
         "WHERE" &&
-        courseNameFind
+        courseNameFind  && courseNameFind != 'undefined'
       ) {
         sqlString += "AND ";
       }
 
-      if (courseNameFind) {
+      if (courseNameFind && courseNameFind != 'undefined') {
         if (courseNameFind) sqlString += " cour.[name] like N'%" + courseNameFind +"%' ";
       }
     }
@@ -304,8 +306,8 @@ module.exports = function () {
     // if (gradeId) sqlString += "AND c.grade_id = @gradeId ";
     if (courceId) sqlString += "AND cour.id = @courceId ";
     if (yearId) sqlString += "AND year.id = @yearId ";
-    if (courseNameFind) sqlString += "AND cour.[name] like N'%" + courseNameFind +"%' ";
-    if (courseIdFind) sqlString += "AND cour.[id] like '%" + courseIdFind +"%' ";
+    if (courseNameFind && courseNameFind != 'undefined') sqlString += "AND cour.[name] like N'%" + courseNameFind +"%' ";
+    if (courseIdFind && courseIdFind != 'undefined') sqlString += "AND cour.[id] like '%" + courseIdFind +"%' ";
     sqlString += baseUrlEndAdmin;
     if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()

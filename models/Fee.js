@@ -17,7 +17,7 @@ module.exports = function () {
     yearNameFind
   }) {
     const pool = await conn;
-    var sqlString = "SELECT f.id, f.contact_book_id contactBookId, f.tuition_fee tuitionFee, f.status, f.date_fee dateFee, ct.student_id studentId, ct.teacher_id teacherId, ct.school_year schoolYear, ct.semester, ct.class_name className, y.name year FROM dbo.fee f "
+    var sqlString = "SELECT f.id, f.contact_book_id contactBookId, f.tuition_fee tuitionFee, f.status, f.date_fee dateFee, ct.student_id studentId, ct.teacher_id teacherId, ct.school_year schoolYear, ct.semester, ct.class_name className, y.name year, s.name studentName FROM dbo.fee f "
       + " LEFT JOIN dbo.contact_book ct ON ct.id = f.contact_book_id "
       + " LEFT JOIN dbo.student s ON s.id = ct.student_id "
       + " LEFT JOIN dbo.family fa ON fa.cmnd = s.cmnd_family "

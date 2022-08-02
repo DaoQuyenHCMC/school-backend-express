@@ -82,7 +82,7 @@ module.exports = function () {
         return result(
           Status.APIStatus.Invalid,
           null,
-          "Dữ liệu đã tồn tại",
+          "Email hoặc số căn cước đã tồn tại",
           0,
           null
         );

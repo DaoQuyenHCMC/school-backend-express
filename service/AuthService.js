@@ -188,10 +188,11 @@ module.exports = function () {
         const mainOptions = {
           from: "noreply@hello.com",
           to: emailSend,
-          subject: "Link lấy lại mật khẩu",
+          subject: "Quên mật khẩu",
           html: `
           <h2>Mật khẩu mới</h2>
-          <p>${passwordSend}</p>
+          <h4>Hệ thống đã ghi nhận yêu cầu quên mật khẩu của bạn</h4>
+          <p>Mật khẩu: ${passwordSend}</p>
           `,
         };
 

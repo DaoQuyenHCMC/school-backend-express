@@ -61,9 +61,10 @@ exports.getAllManager = (req, res) => {
 exports.getAllStudent = (req, res) => {
   const id = req.params.id;
   const contactBookId = req.query.contactBookId;
+  const status = req.query.status;
   const offset = req.query.offset;
   const limit = req.query.limit;
-  model.getAllStudent(id, contactBookId, req.user.id, offset, limit, function (status, data, message, total, headers) {
+  model.getAllStudent(id, contactBookId, req.user.id, offset, limit, status, function (status, data, message, total, headers) {
     res.send({
       status: status,
       data: data,

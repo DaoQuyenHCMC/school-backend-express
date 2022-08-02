@@ -6,9 +6,13 @@ module.exports = function () {
   const baseUrlStart = "SELECT n.school_id schoolId, s.address schoolAddress, s.description schoolDescription, s.name schoolName, type, "
     + "n.id idNotification, n.object, n.create_by createBy, n.approve_by approveBy, n.status statusNotification, "
     + "n.title titleNotification, n.description descriptionNotification, n.start_day startDay, n.end_day endDay, n.create_day createDay,"
-    + "e.title titleExtracurricularActivities, e.id idExtracurricularActivities, e.description descriptionExtracurricularActivities, e.day "
+    + "e.title titleExtracurricularActivities, e.id idExtracurricularActivities, e.description descriptionExtracurricularActivities, e.day, "
+    + "st.name studentName, t.name teacherName, f.name familyName "
     + "FROM notification n "
     + "LEFT JOIN dbo.extracurricular_activities e ON e.id = n.extracurricular_activities_id "
+    + "LEFT JOIN dbo.student st ON st.id = n.object "
+    + "LEFT JOIN dbo.teacher t ON t.id = n.object "
+    + "LEFT JOIN dbo.family f ON f.cmnd = n.object "
     + "LEFT JOIN dbo.school s ON n.school_id = s.id ";
 
   const baseUrlEndAdmin = "ORDER BY n.create_day DESC, e.title ASC, n.title ASC "
@@ -39,7 +43,7 @@ module.exports = function () {
     if (extracurricularActivitiesId) sqlString += "and n.extracurricular_activities_id = @extracurricularActivitiesId ";
     if (notificationId) sqlString += "and n.id = @notificationId ";
     if (status) sqlString += "and n.status = @status ";
-    sqlString += "ORDER BY n.create_by, s.id, s.[name], e.title, n.title ";
+    sqlString += baseUrlEndAdmin;
     if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
       .input("extracurricularActivitiesId", sql.Int, extracurricularActivitiesId)
@@ -154,7 +158,10 @@ module.exports = function () {
 
   this.getAllTeacher = async function ({ extracurricularActivitiesId, userId, notificationId, status, offset, limit }) {
     const pool = await conn;
-    var sqlString = baseUrlStart + " WHERE (n.school_id = dbo.GetIdSchoolFromIdTeacher(@userId) or n.school_id is null) and object in ('2', '6', '7', @userId) and n.status = 'APPROVE' and n.create_by != @userId ";
+    var sqlString = baseUrlStart 
+    + " WHERE (n.school_id = dbo.GetIdSchoolFromIdTeacher(@userId) or n.school_id is null) "
+    + "and (object in ('2', '6', '7', @userId) and n.status = 'APPROVE' and n.create_by != @userId)  "
+    + "or n.approve_by = @userId ";
     if (status) sqlString += "and n.status = @status ";
     if (extracurricularActivitiesId) sqlString += "AND n.extracurricular_activities_id = @extracurricularActivitiesId ";
     if (notificationId) sqlString += "AND n.id = @notificationId ";
@@ -219,9 +226,9 @@ module.exports = function () {
 
   this.getAllRequestAdminFromTeacher = async function ({ userId, status, offset, limit }) {
     const pool = await conn;
-    var sqlString = baseUrlStart + "inner join dbo.teacher t on t.id = n.create_by "
+    var sqlString = baseUrlStart
       + "where t.role_id = 'TEACHER' and approve_by = 'ADMIN' "
-      + "and t.school_id = dbo.GetIdSchoolFromIdTeacher(n.create_by)";
+      + "and t.school_id = dbo.GetIdSchoolFromIdTeacher(n.create_by) and n.create_by = t.id ";
     if (status) sqlString += "and n.status = @status ";
     sqlString += baseUrlEndAdmin;
     if (limit && offset) sqlString += baseUrlPagination;
@@ -235,9 +242,24 @@ module.exports = function () {
 
   this.getAllRequestAdminFromStudent = async function ({ userId, status, offset, limit }) {
     const pool = await conn;
-    var sqlString = baseUrlStart + "inner join dbo.student st on st.id = n.create_by "
+    var sqlString = baseUrlStart 
       + "where st.role_id = 'STUDENT' and approve_by = 'ADMIN' "
-      + "and st.school_id = dbo.GetIdSchoolFromIdStudent(n.create_by) ";
+      + "and st.school_id = dbo.GetIdSchoolFromIdStudent(n.create_by) and n.create_by = st.id ";
+    if (status) sqlString += "and n.status = @status ";
+    sqlString += baseUrlEndAdmin;
+    if (limit && offset) sqlString += baseUrlPagination;
+    return await pool.request()
+      .input("userId", sql.VarChar, userId)
+      .input("status", sql.VarChar, status)
+      .input("offset", sql.Int, offset)
+      .input("limit", sql.Int, limit)
+      .query(sqlString);
+  };
+
+  this.getAllRequestAdminFromFamily = async function ({ userId, status, offset, limit }) {
+    const pool = await conn;
+    var sqlString = baseUrlStart 
+      + "where approve_by = 'ADMIN' and n.create_by = f.cmnd ";
     if (status) sqlString += "and n.status = @status ";
     sqlString += baseUrlEndAdmin;
     if (limit && offset) sqlString += baseUrlPagination;

@@ -27,7 +27,7 @@ module.exports = function () {
     var sqlString =
       "SELECT t.id, t.[address], t.cmnd, t.[name], t.[email], t.phone, t.salary, t.[status], r.[name] roleName, t.role_id roleId, s.[name] schoolName, t.school_id schoolId FROM dbo.teacher t " +
       "INNER JOIN dbo.[role] r ON t.role_id = r.id " +
-      "INNER JOIN dbo.school s ON t.school_id = s.id ";
+      "LEFT JOIN dbo.school s ON t.school_id = s.id ";
     if (schoolId || teacherId || teacherIdFind || teacherNameFind) {
       sqlString += "WHERE ";
       if (teacherId) {
@@ -71,7 +71,7 @@ module.exports = function () {
       }
     }
 
-    sqlString += " ORDER BY s.[name], t.id ";
+    sqlString += " ORDER BY t.name ";
     if (limit && offset) sqlString += baseUrlPagination;
     return await pool.request()
       .input("teacherId", sql.VarChar, teacherId)
@@ -207,6 +207,35 @@ module.exports = function () {
       .input("teacherId", sql.VarChar, teacherId)
       .input("offset", sql.Int, offset)
       .input("limit", sql.Int, limit)
+      .query(sqlString);
+  };
+
+  this.getTeacherHomeroomIdFromStudentId = async function ({ studentId, cmndFamily}) {
+    const pool = await conn;
+    var sqlString =
+      "select TOP(1) t.id teacherId from dbo.student s " +
+      "left join dbo.class c on c.id = s.class_id " +
+      "left join dbo.teacher t on c.teacher_id = t.id " +
+      "left join dbo.family f on f.cmnd = s.cmnd_family ";
+      if(studentId || cmndFamily){
+        sqlString += "WHERE ";
+        if (studentId) {
+          sqlString += "s.id = @studentId ";
+        }
+        if (
+          sqlString.substring(sqlString.length - 6, sqlString.length - 1) !==
+          "WHERE" &&
+          cmndFamily
+        ) {
+          sqlString += "AND ";
+        }
+        if (cmndFamily) {
+          sqlString += "f.cmnd = @cmndFamily ";
+        }
+      }
+    return await pool.request()
+      .input("studentId", sql.VarChar, studentId)
+      .input("cmndFamily", sql.VarChar, cmndFamily)
       .query(sqlString);
   };
 

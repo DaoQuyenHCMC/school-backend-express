@@ -20,13 +20,31 @@ module.exports = function () {
   }
 
   // Kiểm tra dữ liệu khóa ngoại
-  const checkSchool = async (schoolId) => {
+  const checkSchool = async (schoolId, gradeName) => {
     try {
       // Kiểm tra khóa ngoại school có tồn tại
       if (schoolId != null) {
         dataSchool = await modelSchool.getOne(schoolId);
         if (dataSchool.recordset.length == 0) {
           return "Không tìm thấy school tương ứng";
+        }
+        dataGradeName = await model.checkNameWithSchoolId({gradeName: gradeName, schoolId: schoolId});
+        if(dataGradeName.recordset.length != 0 ){
+          return "Đã tồn tại " + gradeName.toLowerCase() + " cho trường";
+        }
+        if(dataSchool.recordset[0].type){
+          switch (dataSchool.recordset[0].type) {
+            case 1:
+              if(('Khối lớp 1', 'Khối lớp 2', 'Khối lớp 3', 'Khối lớp 4', 'Khối lớp 5').includes(gradeName)) return null;
+              break;
+            case 2:
+              if(('Khối lớp 6', 'Khối lớp 7', 'Khối lớp 8', 'Khối lớp 9').includes(gradeName)) return null;
+              break;
+            case 3:
+              if(('Khối lớp 10', 'Khối lớp 11', 'Khối lớp 12').includes(gradeName)) return null;
+              break;
+          }
+          return "Không được phép tạo khối học này"
         }
       }
     } catch (err) {
@@ -52,7 +70,8 @@ module.exports = function () {
     try {
       // Kiểm tra dữ liệu khóa ngoại roleId và schoolId có tồn tại
       var checkDataFK = await checkSchool(
-        grade.schoolId
+        grade.schoolId,
+        grade.name
       );
       if (checkDataFK != null) {
         return result(Status.APIStatus.Invalid, null, checkDataFK, 0, null);
@@ -123,6 +142,15 @@ module.exports = function () {
         schoolId: newData.schoolId || dataCheck.recordset[0].schoolId,
         name: newData.name || dataCheck.recordset[0].name
       };
+
+      // Kiểm tra dữ liệu khóa ngoại roleId và schoolId có tồn tại
+      var checkDataFK = await checkSchool(
+        grade.schoolId,
+        grade.name
+      );
+      if (checkDataFK != null) {
+        return result(Status.APIStatus.Invalid, null, checkDataFK, 0, null);
+      }
 
       // Update dữ liệu
       dataUpdate = await model.update(grade);
@@ -234,6 +262,14 @@ module.exports = function () {
 
       grade.schoolId = await (await modelSchool.getSchoolIdFromTeacher({ userId: userId })).recordset[0].schoolId;
 
+      // Kiểm tra dữ liệu khóa ngoại roleId và schoolId có tồn tại
+      var checkDataFK = await checkSchool(
+        grade.schoolId,
+        grade.name
+      );
+      if (checkDataFK != null) {
+        return result(Status.APIStatus.Invalid, null, checkDataFK, 0, null);
+      }
       // Thêm dữ liệu
       dataCreate = await model.create(grade);
       //Status, Data,	Message, Total, Headers
@@ -302,6 +338,15 @@ module.exports = function () {
         schoolId: newData.schoolId || dataCheck.recordset[0].schoolId,
         name: newData.name || dataCheck.recordset[0].name
       };
+
+      // Kiểm tra dữ liệu khóa ngoại roleId và schoolId có tồn tại
+      var checkDataFK = await checkSchool(
+        grade.schoolId,
+        grade.name
+      );
+      if (checkDataFK != null) {
+        return result(Status.APIStatus.Invalid, null, checkDataFK, 0, null);
+      }
 
       // Update dữ liệu
       dataUpdate = await model.update(grade);

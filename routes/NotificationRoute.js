@@ -1,7 +1,7 @@
 const express = require("express");
 const Router = express.Router();
 const {createManager, updateManager, getAll, deleteManager, getAllManager, approveManager, 
-        createStudent, getAllStudent, getAllRequestAdminFromStudent, getAllStudentRequest,
+        createStudent, getAllStudent, getAllRequestAdminFromStudent, getAllStudentRequest, getAllRequestAdminFromFamily,
         getAllFamily, createFamily, getAllFamilyRequest, createTeacherListHomeroom, approveTeacher,
         createCustomer, getAllTeacher, createTeacher, getAllRequestAdminFromTeacher, getAllTeacherRequest, createTeacherCourse, createTeacherHomeroom,
         createAdmin, updateAdmin, getAllAdmin, deleteAdmin, getAllForAdmin, getAllRequestAdmin, approveAdmin} = require('../controllers/NotificationController')
@@ -25,6 +25,7 @@ Router.route("/for-admin").get(verifyToken, checkRoleAdmin, getAllForAdmin);
 Router.route("/admin-request").get(verifyToken, checkRoleAdmin, getAllRequestAdmin);
 Router.route("/admin-request-teacher").get(verifyToken, checkRoleAdmin, getAllRequestAdminFromTeacher);
 Router.route("/admin-request-student").get(verifyToken, checkRoleAdmin, getAllRequestAdminFromStudent);
+Router.route("/admin-request-family").get(verifyToken, checkRoleAdmin, getAllRequestAdminFromFamily);
 
 // Router.route("/customer").post(verifyToken, checkRoleAll, createCustomer);
 
